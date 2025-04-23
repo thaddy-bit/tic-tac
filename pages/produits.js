@@ -22,7 +22,6 @@ export default function Produits() {
 
   const handleSearch = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setMessage('');
     setProduits([]);
 
@@ -38,7 +37,7 @@ export default function Produits() {
     } catch {
       setMessage('Erreur de connexion au serveur.');
     } finally {
-      setLoading(false);
+      // setLoading(false);
     }
   };
 

@@ -55,7 +55,6 @@ export default function Navbar() {
         <div className="md:hidden px-4 pb-4 mt-5 space-y-2 bg-green-500">
           <Link href="/" className="block hover:underline text-center pt-5 text-xl">Accueil</Link>
           <Link href="#" onClick={() => handleProtectedLinkClick("/produits")} className="block hover:underline text-center text-xl">Médicament</Link>
-          <Link href="#" onClick={() => handleProtectedLinkClick("/produits")} className="block hover:underline text-center text-xl">Ordonnance</Link>
           <Link href="#" onClick={() => handleProtectedLinkClick("/commandes")} className="block hover:underline text-center text-xl">Commande</Link>
           <div className="flex gap-4 items-center text-center">
           <PanierBadge />
