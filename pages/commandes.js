@@ -16,7 +16,6 @@ export default function CommandePage() {
   const [livraison, setLivraison] = useState(0);
   const [adresse, setAdresse] = useState(0);
   const [message, setMessage] = useState('');
-  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   // liste des produits du panier

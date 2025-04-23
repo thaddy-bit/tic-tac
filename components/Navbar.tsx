@@ -2,17 +2,12 @@
 import { Menu, X, Settings } from "lucide-react";
 import { SetStateAction, useState } from "react";
 import Link from "next/link";
-import Image from 'next/image';
 import { useRouter } from 'next/router';
 import PanierBadge from '@/components/PanierBadge';
 import CodeValidationModal from "./CodeValidationModal";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const [showModal, setShowModal] = useState(false);
-  const [code, setCode] = useState('');
-  const [error, setError] = useState('');
-  const [targetPage, setTargetPage] = useState('');
   const router = useRouter();
   const [modalOpen, setModalOpen] = useState(false);
   const [redirectPath, setRedirectPath] = useState("");

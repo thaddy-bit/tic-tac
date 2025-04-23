@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import Layout  from '../components/Layout';
 import { addToPanier } from '@/lib/panier';
-import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import Image from 'next/image';
 import { Search } from 'lucide-react';
 import Link from "next/link";
@@ -9,9 +8,7 @@ import Link from "next/link";
 export default function Produits() {
   const [query, setQuery] = useState('');
   const [produits, setProduits] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
-  const [search, setSearch] = useState('');
 
   const handleAdd = (produit) => {
     addToPanier(produit);
@@ -38,7 +35,7 @@ export default function Produits() {
       } else {
         setProduits(data);
       }
-    } catch (err) {
+    } catch {
       setMessage('Erreur de connexion au serveur.');
     } finally {
       setLoading(false);
