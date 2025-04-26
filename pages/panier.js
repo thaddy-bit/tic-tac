@@ -28,57 +28,65 @@ export default function PanierPage() {
 
   return (
     <Layout>
-        <div className="max-w-4xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6 text-green-700">🛒 Mon Panier</h1>
+      <div className="max-w-6xl mx-auto px-4 py-10">
+        <h1 className="text-3xl font-bold mb-10 text-green-700 text-center">🛒 Mon Panier</h1>
 
-      {panier.length === 0 ? (
-        <p className="text-gray-600">Votre panier est vide.</p>
-      ) : (
-        <div className="space-y-6">
-          {panier.map((item) => (
-            <div
-              key={item.id}
-              className="flex flex-col md:flex-row items-start md:items-center justify-between bg-white p-4 rounded shadow"
-            >
-              <div>
-                <h2 className="text-lg font-semibold text-green-800">{item.nom}</h2>
-                <p className="text-sm text-gray-500">{item.description}</p>
-                <p className="text-sm text-gray-600">Prix : {item.prix} FCFA</p>
-                <p className="text-sm text-gray-600">{item.pharmacie_nom}</p>
+        {panier.length === 0 ? (
+          <div className="text-center text-gray-500 text-lg">
+            Votre panier est vide pour le moment...
+          </div>
+        ) : (
+          <div className="grid gap-6">
+            {panier.map((item) => (
+              <div
+                key={item.id}
+                className="flex flex-col md:flex-row items-center justify-between bg-white p-6 rounded-2xl shadow-md hover:shadow-lg transition duration-300"
+              >
+                {/* Partie Gauche : infos produit */}
+                <div className="flex-1 w-full">
+                  <h2 className="text-xl font-semibold text-green-800">{item.nom}</h2>
+                  <p className="text-sm text-gray-500 mt-1">{item.description}</p>
+                  <div className="flex flex-wrap gap-3 mt-3 text-sm text-gray-600">
+                    <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                      {item.pharmacie_nom}
+                    </span>
+                    <span>Prix : <strong>{item.prix} FCFA</strong></span>
+                  </div>
+                </div>
+
+                {/* Partie Droite : Quantité + Bouton Supprimer */}
+                <div className="flex flex-col items-center gap-3 mt-6 md:mt-0">
+                  <input
+                    type="number"
+                    value={item.quantite}
+                    min="1"
+                    className="w-20 border-2 border-green-400 rounded-xl p-2 text-center focus:outline-none focus:ring-2 focus:ring-green-500"
+                    onChange={(e) => updateQuantite(item.id, parseInt(e.target.value))}
+                  />
+                  <button
+                    onClick={() => supprimerProduit(item.id)}
+                    className="text-red-500 hover:text-red-600 text-sm underline transition"
+                  >
+                    Supprimer
+                  </button>
+                </div>
               </div>
+            ))}
 
-              <div className="flex items-center gap-4 mt-4 md:mt-0">
-                <input
-                  type="number"
-                  value={item.quantite}
-                  min="1"
-                  className="w-16 border rounded p-1 text-center"
-                  onChange={(e) => updateQuantite(item.id, parseInt(e.target.value))}
-                />
-                <button
-                  onClick={() => supprimerProduit(item.id)}
-                  className="text-red-600 hover:underline text-sm"
-                >
-                  Supprimer
+            {/* Résumé total */}
+            <div className="bg-green-100 p-6 rounded-2xl flex flex-col md:flex-row justify-between items-center mt-8">
+              <div className="text-lg font-semibold text-green-800">
+                Total à payer : {total.toFixed(0)} FCFA
+              </div>
+              <Link href="/commandes">
+                <button className="mt-4 md:mt-0 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-xl transition">
+                  Passer la commande
                 </button>
-              </div>
+              </Link>
             </div>
-          ))}
-
-          <div className="text-right mt-6 text-lg font-bold text-green-700">
-            Total : {total.toFixed(0)} FCFA
           </div>
-
-          <div className="text-right">
-            <Link href="/commandes">
-              <button className="mt-4 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
-                Passer la commande
-              </button>
-            </Link>
-          </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
     </Layout>
   );
 }

@@ -20,7 +20,7 @@ export default async function handler(req, res) {
 
     // 🔹 Insertion dans commandes
     const [commandeResult] = await connection.query(
-      `INSERT INTO commandes (client_nom, telephone, user_id, chauffeur_id, automobile_id, total, livraison, statut, adresse) VALUES (?, ?, ?, ?, ?, ?, 'en cours', ?)`,
+      `INSERT INTO commandes (client_nom, telephone, user_id, chauffeur_id, automobile_id, total, livraison, statut, adresse) VALUES (?, ?, ?, ?, ?, ?, ?, 'en cours', ?)`,
       [nomPatient, telephone, userId, chauffeurId, automobileId, total, livraison, adresse]
     );
     const commandeId = commandeResult.insertId;

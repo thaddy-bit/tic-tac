@@ -14,17 +14,15 @@ export default function CommandePage() {
   const [selectedChauffeurId, setSelectedChauffeurId] = useState('');
   const [selectedAutomobileId, setSelectedAutomobileId] = useState('');
   const [livraison, setLivraison] = useState(0);
-  const [adresse, setAdresse] = useState(0);
+  const [adresse, setAdresse] = useState('');
   const [message, setMessage] = useState('');
   const router = useRouter();
 
-  // liste des produits du panier
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem('panier') || '[]');
     setPanier(stored);
   }, []);
 
-  // Charger les données nécessaires
   useEffect(() => {
     async function loadData() {
       try {
@@ -51,11 +49,13 @@ export default function CommandePage() {
     loadData();
   }, []);
 
+  // Calculs dynamiques
   const totalProduits = panier.reduce((acc, item) => acc + item.quantite * item.prix, 0);
-  const totalFinal = totalProduits + parseFloat(livraison || 0);
+  const fraisLivraison = parseInt(livraison) || 0;
+  const totalFinal = totalProduits + fraisLivraison;
 
   const handleCommande = async () => {
-    if (!nomPatient || livraison < 0 || panier.length === 0 || !selectedUserId) {
+    if (!nomPatient || fraisLivraison < 0 || panier.length === 0 || !selectedUserId) {
       setMessage('Veuillez remplir tous les champs correctement.');
       return;
     }
@@ -64,7 +64,7 @@ export default function CommandePage() {
       const res = await axios.post('/api/commande', {
         nomPatient,
         telephone,
-        livraison,
+        livraison: fraisLivraison,
         adresse,
         panier,
         total: totalFinal,
@@ -88,59 +88,52 @@ export default function CommandePage() {
 
   return (
     <Layout>
-      <div className="max-w-3xl mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold text-green-700 mb-6">📝 Passer une commande</h1>
+      <div className="max-w-5xl mx-auto px-6 py-10">
+        <h1 className="text-3xl font-bold text-green-700 mb-8 text-center">📝 Passer une commande</h1>
 
         {message && (
-          <div className="mb-4 text-sm text-center p-2 rounded bg-green-100 text-green-700">
+          <div className="mb-6 text-center p-3 rounded-md bg-green-100 text-green-700 font-medium shadow">
             {message}
           </div>
         )}
 
-        <div className="space-x-4 lg:flex">
-          <div className='bg-white p-4 rounded shadow'>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Formulaire de commande */}
+          <div className="bg-white p-6 rounded-lg shadow-md space-y-5">
+            {/* Nom du patient */}
+            <div>
+              <label className="block text-gray-700 font-semibold mb-1">Nom du patient *</label>
+              <input
+                type="text"
+                className="w-full border p-2 rounded focus:ring-2 focus:ring-green-500"
+                placeholder="Ex: Jean Dupont"
+                value={nomPatient}
+                onChange={(e) => setNomPatient(e.target.value)}
+              />
+            </div>
 
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              Nom du patient *
-            </label>
-          <input
-              type="text"
-              placeholder="Nom du patient"
-              className="w-full border p-2 rounded"
-              value={nomPatient}
-              required
-              onChange={(e) => setNomPatient(e.target.value)}
-            />
-          </div>
+            {/* Téléphone */}
+            <div>
+              <label className="block text-gray-700 font-semibold mb-1">Téléphone *</label>
+              <input
+                type="text"
+                className="w-full border p-2 rounded focus:ring-2 focus:ring-green-500"
+                placeholder="Ex: 77 000 00 00"
+                value={telephone}
+                onChange={(e) => setTelephone(e.target.value)}
+              />
+            </div>
 
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              Téléphone du patient *
-            </label>
-          <input
-              type="text"
-              placeholder="Nom du patient"
-              className="w-full border p-2 rounded"
-              value={telephone}
-              required
-              onChange={(e) => setTelephone(e.target.value)}
-            />
-          </div>
-
-            {/* Utilisateur */}
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2">
-                Responsable *
-              </label>
+            {/* Responsable */}
+            <div>
+              <label className="block text-gray-700 font-semibold mb-1">Responsable *</label>
               <select
                 value={selectedUserId}
                 onChange={(e) => setSelectedUserId(e.target.value)}
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                required
+                className="w-full border p-2 rounded focus:ring-2 focus:ring-green-500"
               >
                 <option value="">Sélectionner un responsable</option>
-                {Array.isArray(users) && users.map(user => (
+                {Array.isArray(users) && users.map((user) => (
                   <option key={user.id} value={user.id}>
                     {user.prenom} {user.nom}
                   </option>
@@ -149,18 +142,15 @@ export default function CommandePage() {
             </div>
 
             {/* Chauffeur */}
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2">
-                Chauffeur
-              </label>
+            <div>
+              <label className="block text-gray-700 font-semibold mb-1">Chauffeur</label>
               <select
                 value={selectedChauffeurId}
                 onChange={(e) => setSelectedChauffeurId(e.target.value)}
-                required
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                className="w-full border p-2 rounded focus:ring-2 focus:ring-green-500"
               >
                 <option value="">Sélectionner un chauffeur</option>
-                {Array.isArray(chauffeurs) && chauffeurs.map(chauffeur => (
+                {Array.isArray(chauffeurs) && chauffeurs.map((chauffeur) => (
                   <option key={chauffeur.id} value={chauffeur.id}>
                     {chauffeur.prenom} {chauffeur.nom}
                   </option>
@@ -168,81 +158,90 @@ export default function CommandePage() {
               </select>
             </div>
 
-            {/* Automobile */}
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2">
-                Véhicule *
-              </label>
+            {/* Véhicule */}
+            <div>
+              <label className="block text-gray-700 font-semibold mb-1">Véhicule *</label>
               <select
                 value={selectedAutomobileId}
                 onChange={(e) => setSelectedAutomobileId(e.target.value)}
-                required
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                className="w-full border p-2 rounded focus:ring-2 focus:ring-green-500"
               >
                 <option value="">Sélectionner un véhicule</option>
-                {Array.isArray(automobiles) && automobiles.map(auto => (
+                {Array.isArray(automobiles) && automobiles.map((auto) => (
                   <option key={auto.id} value={auto.id}>
                     {auto.nom} ({auto.matriculation})
                   </option>
                 ))}
               </select>
             </div>
+
             {/* Livraison */}
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2">
-                Livraison *
-              </label>
+            <div>
+              <label className="block text-gray-700 font-semibold mb-1">Livraison *</label>
               <select
                 value={livraison}
                 onChange={(e) => setLivraison(e.target.value)}
-                required
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                className="w-full border p-2 rounded focus:ring-2 focus:ring-green-500"
               >
                 <option value="">Sélectionner un montant</option>
-                  <option value={1000}>1 000</option>
-                  <option value={1500}>1 500</option>
-                  <option value={2000}>2 000</option>
-                  <option value={3000}>3 000</option>
-                  <option value={4000}>4 000</option>
-                  <option value={5000}>5 000</option>
+                {[1000, 1500, 2000, 3000, 4000, 5000].map((amount) => (
+                  <option key={amount} value={amount}>
+                    {amount.toLocaleString()} FCFA
+                  </option>
+                ))}
               </select>
             </div>
+
             {/* Adresse */}
-            <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              Adresse
-            </label>
-          <input
-              type="text"
-              placeholder="Adresse"
-              className="w-full border p-2 rounded"
-              value={adresse}
-              required
-              onChange={(e) => setAdresse(e.target.value)}
-            />
-          </div>
+            <div>
+              <label className="block text-gray-700 font-semibold mb-1">Adresse</label>
+              <input
+                type="text"
+                className="w-full border p-2 rounded focus:ring-2 focus:ring-green-500"
+                placeholder="Ex: Sacré-Cœur 3"
+                value={adresse}
+                onChange={(e) => setAdresse(e.target.value)}
+              />
+            </div>
           </div>
 
-          <div>
-            <div className="bg-white p-4 rounded shadow">
-              <h2 className="font-semibold mb-2 text-green-700">🛒 Articles dans le panier : ({panier.length})</h2>
-              {panier.map((item) => (
-                <div key={item.id} className="text-sm border-b py-2 flex justify-between">
-                  <span>{item.nom} × {item.quantite}</span>
-                  <span>{(item.prix * item.quantite)} FCFA</span>
+          {/* Panier */}
+          <div className="bg-white p-6 rounded-lg shadow-md flex flex-col justify-between">
+            <div>
+              <h2 className="text-2xl font-bold text-green-700 mb-4">🛒 Panier ({panier.length} articles)</h2>
+
+              {panier.length === 0 ? (
+                <p className="text-gray-500">Votre panier est vide.</p>
+              ) : (
+                <div className="space-y-3">
+                  {panier.map((item) => (
+                    <div key={item.id} className="flex justify-between text-sm border-b pb-2">
+                      <span>{item.nom} × {item.quantite}</span>
+                      <span className="font-semibold">{(item.prix * item.quantite).toLocaleString()} FCFA</span>
+                    </div>
+                  ))}
                 </div>
-              ))}
-              <div className="font-bold mt-4 text-right">
-                Total : {totalProduits} FCFA + {livraison || 0} FCFA = {totalFinal} FCFA
-              </div>
+              )}
             </div>
 
-          <button
-            className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 mt-4"
-            onClick={handleCommande}
-          >
-            Confirmer la commande
-          </button>
+            <div className="mt-6 border-t pt-4">
+              <p className="text-right font-bold text-lg">
+                Total Produits : {totalProduits.toLocaleString()} FCFA
+              </p>
+              <p className="text-right font-bold text-lg">
+                Livraison : {fraisLivraison.toLocaleString()} FCFA
+              </p>
+              <p className="text-right text-green-700 text-2xl font-extrabold mt-2">
+                Total : {totalFinal.toLocaleString()} FCFA
+              </p>
+
+              <button
+                className="w-full bg-green-600 text-white py-3 mt-6 rounded-lg hover:bg-green-700 transition font-bold text-lg"
+                onClick={handleCommande}
+              >
+                ✅ Confirmer la commande
+              </button>
+            </div>
           </div>
         </div>
       </div>
