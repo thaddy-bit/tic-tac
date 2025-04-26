@@ -101,7 +101,7 @@ export default function Home() {
           >
             <Image src="/c1.png" width={80} height={80} alt="Commande" />
             <h3 className="text-xl font-bold mt-4 mb-2 text-green-600">Suivi de Commande</h3>
-            <p className="text-gray-600">Suivez en temps réel la préparation et l'expédition de vos commandes.</p>
+            <p className="text-gray-600">Suivez en temps réel la préparation et l expédition de vos commandes.</p>
           </motion.div>
         </div>
       </section>
