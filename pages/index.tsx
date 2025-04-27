@@ -9,7 +9,7 @@ export default function Home() {
       {/* Section Hero */}
       <div className="relative h-screen w-full overflow-hidden">
         <Image
-          src="/A1.png" // Ton image de fond
+          src="/A2.png" // Ton image de fond
           alt="Pharmacie"
           fill
           priority
@@ -89,7 +89,7 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 px-6 bg-green-600 text-white text-center">
+      <section className="py-20 px-6 bg-transparent text-green-600 text-center">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -106,7 +106,7 @@ export default function Home() {
           viewport={{ once: true }}
           transition={{ delay: 0.3, duration: 0.6 }}
         >
-          <Link href="#" className="bg-white text-green-600 font-bold py-3 px-8 rounded-full hover:bg-gray-100 transition text-lg">
+          <Link href="#" className="bg-green-600 text-white font-bold py-3 px-8 rounded-full hover:bg-green-800 transition text-lg">
             Suivez nous
           </Link>
         </motion.div>
