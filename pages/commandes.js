@@ -9,7 +9,6 @@ export default function CommandePage() {
   const [telephone, setTelephone] = useState('');
   const [automobiles, setAutomobiles] = useState([]);
   const [chauffeurs, setChauffeurs] = useState([]);
-  const [users, setUsers] = useState([]);
   // const [selectedUserId, setSelectedUserId] = useState('');
   const [selectedChauffeurId, setSelectedChauffeurId] = useState('');
   const [selectedAutomobileId, setSelectedAutomobileId] = useState('');
@@ -43,22 +42,19 @@ export default function CommandePage() {
   }, []);
 
   useEffect(() => {
-    
+
     async function loadData() {
       try {
-        const [usersRes, chauffeursRes, automobilesRes] = await Promise.all([
-          fetch('/api/users'),
+        const [chauffeursRes, automobilesRes] = await Promise.all([
           fetch('/api/chauffeurs'),
           fetch('/api/automobiles')
         ]);
 
-        const [usersData, chauffeursData, automobilesData] = await Promise.all([
-          usersRes.json(),
+        const [chauffeursData, automobilesData] = await Promise.all([
           chauffeursRes.json(),
           automobilesRes.json()
         ]);
 
-        setUsers(usersData);
         setChauffeurs(chauffeursData);
         setAutomobiles(automobilesData);
       } catch (err) {
