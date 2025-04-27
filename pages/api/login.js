@@ -1,4 +1,4 @@
-import { serialize } from 'cookie';  // Décommente ici
+import { serialize } from 'cookie';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { pool } from '@/lib/db';
@@ -32,11 +32,11 @@ export default async function handler(req, res) {
     // Stocke le token dans un cookie HTTP Only
     res.setHeader('Set-Cookie', serialize('token', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production', // uniquement en prod
-      sameSite: 'strict',
+      secure: process.env.NODE_ENV === 'production', // uniquement en production
+      sameSite: 'lax', // Utilisation de 'lax' pour plus de flexibilité
       path: '/',
       maxAge: 60 * 60 * 24, // 1 jour
-      domain: process.env.NODE_ENV === 'production' ? 'tictac-cg.com' : undefined,  // Assure-toi du bon domaine en prod
+      domain: process.env.NODE_ENV === 'production' ? 'tictac-cg.com' : undefined,  // Vérifier le bon domaine
     }));
 
     return res.status(200).json({ message: 'Connexion réussie' });
