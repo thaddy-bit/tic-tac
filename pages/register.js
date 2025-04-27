@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Layout from '../components/Layout';
 
 export default function Register() {
   const [form, setForm] = useState({
@@ -30,7 +31,7 @@ export default function Register() {
 
       const data = await res.json();
       if (res.ok) {
-        setMessage('✅ Utilisateur enregistré avec succès.');
+        setMessage('Utilisateur enregistré avec succès.');
         setForm({
           nom: '',
           prenom: '',
@@ -40,18 +41,19 @@ export default function Register() {
           role: 'simple',
         });
       } else {
-        setMessage(`❌ ${data.message}`);
+        setMessage(`${data.message}`);
       }
     } catch (error) {
       console.error(error);
-      setMessage('❌ Erreur lors de l\'envoi.');
+      setMessage('Erreur lors de l\'envoi.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4">
+    <Layout>
+      <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4">
       <div className="bg-white shadow-2xl rounded-2xl p-8 max-w-md w-full">
         <h2 className="text-3xl font-bold text-center mb-6 text-gray-700">Créer un utilisateur</h2>
 
@@ -146,5 +148,6 @@ export default function Register() {
         </form>
       </div>
     </div>
+    </Layout>
   );
 }

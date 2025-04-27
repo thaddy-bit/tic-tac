@@ -1,6 +1,5 @@
 import jwt from "jsonwebtoken";
 import cookie from "cookie";
-// import pool from "../../../lib/db"; // Connexion MySQL
 import { pool } from '@/lib/db';
 
 export default async function handler(req, res) {
@@ -10,33 +9,41 @@ export default async function handler(req, res) {
 
   // Vérifier si req.headers.cookie existe avant de le parser
   const cookies = req.headers.cookie ? cookie.parse(req.headers.cookie) : {};
-  // console.log("Cookies:", cookies); // Ajout de logs pour le débogage
+  const token = cookies.token || null;
 
-  // console.log("Cookies reçus en production:", req.headers.cookie);
-
-  const token = cookies?.token || null;
-  // console.log("Token récupéré:", token);
-
+  // Si le token est absent, retourner une erreur 401
   if (!token) {
     return res.status(401).json({ message: "Non autorisé" });
   }
 
   try {
+    // Vérifier et décoder le token JWT
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // console.log("Token décodé:", decoded);
-
+    // Requête pour récupérer l'utilisateur dans la base de données
     const [rows] = await pool.query("SELECT id, email FROM users WHERE id = ?", [decoded.id]);
-    // console.log("Résultat de la requête:", rows);
 
+    // Si l'utilisateur n'est pas trouvé, retourner une erreur 404
     if (!rows || rows.length === 0) {
       return res.status(404).json({ message: "Utilisateur non trouvé" });
     }
 
-    res.status(200).json(rows[0]);
+    // Retourner les données de l'utilisateur (id et email)
+    return res.status(200).json(rows[0]);
 
   } catch (error) {
+    // Gérer les erreurs spécifiques
     console.error("Erreur d'authentification:", error);
-    res.status(500).json({ message: "Erreur interne du serveur", error: error.message });
+
+    if (error.name === 'JsonWebTokenError') {
+      // Token invalide ou mal formé
+      return res.status(401).json({ message: "Token invalide" });
+    } else if (error.name === 'TokenExpiredError') {
+      // Token expiré
+      return res.status(401).json({ message: "Token expiré" });
+    }
+
+    // Erreur générique serveur
+    return res.status(500).json({ message: "Erreur interne du serveur", error: error.message });
   }
 }
