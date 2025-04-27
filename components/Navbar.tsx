@@ -1,7 +1,7 @@
 // components/Navbar.tsx
 import { Menu, X, Settings } from "lucide-react";
 import Image from "next/image";
-import { SetStateAction, useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from 'next/router';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -10,19 +10,62 @@ import CodeValidationModal from "./CodeValidationModal";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const router = useRouter();
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [user, setUser] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [redirectPath, setRedirectPath] = useState("");
 
-  const handleProtectedLinkClick = (path: SetStateAction<string>) => {
-    setRedirectPath(path);
-    setModalOpen(true);
-    setIsOpen(false); // Ferme le menu mobile après clic
+  // Vérifie si l'utilisateur est connecté
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await fetch("/api/auth/me");
+        if (!res.ok) throw new Error("Non connecté");
+        const data = await res.json();
+        setUser(data); // Stocker l'utilisateur
+      } catch (error) {
+        setUser(null);
+      }
+    };
+    fetchUser();
+  }, []);
+  /////////////////////
+
+  const handleLinkClick = (path: string) => {
+    if (path === "/produits") {
+      setRedirectPath(path);
+      setModalOpen(true);
+    } else {
+      router.push(path);
+    }
+    setIsOpen(false); // fermer le menu mobile
   };
 
   const handleSuccess = () => {
     router.push(redirectPath);
   };
+
+  const handleLogout = async () => {
+    await fetch("/api/logout", { method: "POST" });
+    setIsAuthenticated(false);
+    router.push("/");
+  };
+
+  // Fermer le dropdown quand on clique à l'extérieur
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
     <header className="sticky top-0 z-50 bg-white/70 backdrop-blur-md shadow-md">
@@ -34,25 +77,63 @@ export default function Navbar() {
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-8">
-          {/* Centered links */}
           <nav className="flex gap-8 text-lg">
             <Link href="/" className="hover:text-white hover:bg-green-500 px-3 py-2 rounded-lg transition duration-300 ease-in-out">
               Accueil
             </Link>
-            <Link href="#" onClick={() => handleProtectedLinkClick("/produits")} className="hover:text-white hover:bg-green-500 px-3 py-2 rounded-lg transition duration-300 ease-in-out">
+            <button onClick={() => handleLinkClick("/produits")} className="hover:text-white hover:bg-green-500 px-3 py-2 rounded-lg transition duration-300 ease-in-out">
               Médicament
-            </Link>
-            <Link href="#" onClick={() => handleProtectedLinkClick("/commandes")} className="hover:text-white hover:bg-green-500 px-3 py-2 rounded-lg transition duration-300 ease-in-out">
-              Commande
+            </button>
+            <Link href="/journal" className="hover:text-white hover:bg-green-500 px-3 py-2 rounded-lg transition duration-300 ease-in-out">
+            Historique Commande
             </Link>
           </nav>
 
-          {/* Panier + Settings alignés à droite */}
-          <div className="flex gap-4 items-center ml-8">
+          {/* Panier + Settings */}
+          <div className="flex gap-4 items-center ml-8 relative" ref={dropdownRef}>
             <PanierBadge />
-            <Link href="#" className="p-2 hover:bg-green-500 hover:text-white rounded-lg transition duration-300 ease-in-out">
+            <button onClick={() => setIsDropdownOpen(!isDropdownOpen)} className="p-2 hover:bg-green-500 hover:text-white rounded-lg transition duration-300 ease-in-out">
               <Settings size={20} />
-            </Link>
+            </button>
+
+            <AnimatePresence>
+              {isDropdownOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2 }}
+                  className="absolute right-0 top-12 w-48 bg-white rounded-xl shadow-lg py-2"
+                >
+                  {user ? (
+                    <>
+                      <Link href="/profile" className="block px-4 py-2 hover:bg-green-100 text-gray-700" onClick={() => setIsDropdownOpen(false)}>
+                        Mon Profil
+                      </Link>
+                      <Link href="/commandes" className="block px-4 py-2 hover:bg-green-100 text-gray-700" onClick={() => setIsDropdownOpen(false)}>
+                        Mes Commandes
+                      </Link>
+                      <Link href="/changer-mot-de-passe" className="block px-4 py-2 hover:bg-green-100 text-gray-700" onClick={() => setIsDropdownOpen(false)}>
+                        Changer Mot de Passe
+                      </Link>
+                      <button
+                        onClick={() => {
+                          handleLogout();
+                          setIsDropdownOpen(false);
+                        }}
+                        className="w-full text-left px-4 py-2 hover:bg-green-100 text-red-500"
+                      >
+                        Déconnexion
+                      </button>
+                    </>
+                  ) : (
+                    <Link href="/login" className="block px-4 py-2 hover:bg-green-100 text-gray-700" onClick={() => setIsDropdownOpen(false)}>
+                      Se connecter
+                    </Link>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
 
@@ -62,7 +143,7 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* Mobile Navigation with Framer Motion */}
+      {/* Mobile Navigation */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -75,23 +156,63 @@ export default function Navbar() {
             <Link href="/" onClick={() => setIsOpen(false)} className="text-lg hover:text-green-500 transition">
               Accueil
             </Link>
-            <Link href="#" onClick={() => handleProtectedLinkClick("/produits")} className="text-lg hover:text-green-500 transition">
+            <button onClick={() => handleLinkClick("/produits")} className="text-lg hover:text-green-500 transition">
               Médicament
-            </Link>
-            <Link href="#" onClick={() => handleProtectedLinkClick("/commandes")} className="text-lg hover:text-green-500 transition">
-              Commande
+            </button>
+            <Link href="/journal" onClick={() => setIsOpen(false)} className="text-lg hover:text-green-500 transition">
+            Historique Commande
             </Link>
             <div className="flex gap-4 items-center">
               <PanierBadge />
-              <Link href="#" className="p-2 hover:bg-green-500 hover:text-white rounded-lg transition duration-300 ease-in-out">
-                <Settings size={20} />
-              </Link>
+              {/* Le bouton settings mobile peut rester sans dropdown pour simplifier */}
+              <button onClick={() => setIsDropdownOpen(!isDropdownOpen)} className="p-2 hover:bg-green-500 hover:text-white rounded-lg transition duration-300 ease-in-out">
+              <Settings size={20} />
+              </button>
+              <AnimatePresence>
+              {isDropdownOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2 }}
+                  className="absolute right-0 top-12 w-48 bg-white rounded-xl shadow-lg py-2"
+                >
+                  {user ? (
+                    <>
+                      <Link href="/profile" className="block px-4 py-2 hover:bg-green-100 text-gray-700" onClick={() => setIsDropdownOpen(false)}>
+                        Mon Profil
+                      </Link>
+                      <Link href="/commandes" className="block px-4 py-2 hover:bg-green-100 text-gray-700" onClick={() => setIsDropdownOpen(false)}>
+                        Mes Commandes
+                      </Link>
+                      <Link href="/changer-mot-de-passe" className="block px-4 py-2 hover:bg-green-100 text-gray-700" onClick={() => setIsDropdownOpen(false)}>
+                        Changer Mot de Passe
+                      </Link>
+                      <button
+                        onClick={() => {
+                          handleLogout();
+                          setIsDropdownOpen(false);
+                        }}
+                        className="w-full text-left px-4 py-2 hover:bg-green-100 text-red-500"
+                      >
+                        Déconnexion
+                      </button>
+                    </>
+                  ) : (
+                    <Link href="/login" className="block px-4 py-2 hover:bg-green-100 text-gray-700" onClick={() => setIsDropdownOpen(false)}>
+                      Se connecter
+                    </Link>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
+              
             </div>
+
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Modal de validation */}
       <CodeValidationModal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}

@@ -10,13 +10,32 @@ export default function CommandePage() {
   const [automobiles, setAutomobiles] = useState([]);
   const [chauffeurs, setChauffeurs] = useState([]);
   const [users, setUsers] = useState([]);
-  const [selectedUserId, setSelectedUserId] = useState('');
+  // const [selectedUserId, setSelectedUserId] = useState('');
   const [selectedChauffeurId, setSelectedChauffeurId] = useState('');
   const [selectedAutomobileId, setSelectedAutomobileId] = useState('');
   const [livraison, setLivraison] = useState(0);
   const [adresse, setAdresse] = useState('');
   const [message, setMessage] = useState('');
   const router = useRouter();
+  const [user, setUser] = useState(null);
+
+  // Vérifie si l'utilisateur est connecté
+    useEffect(() => {
+      const fetchUser = async () => {
+        try {
+          const res = await fetch("/api/auth/me");
+          if (!res.ok) return router.push("/login");
+  
+          const data = await res.json();
+          setUser(data);
+        } catch (error) {
+          router.push("/login");
+        }
+      };
+  
+      fetchUser();
+    }, []);
+
 
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem('panier') || '[]');
@@ -50,12 +69,16 @@ export default function CommandePage() {
   }, []);
 
   // Calculs dynamiques
-  const totalProduits = panier.reduce((acc, item) => acc + item.quantite * item.prix, 0);
+  const totalProduits = panier.reduce((acc, item) => {
+    const quantite = parseInt(item.quantite, 10) || 0;  // Assurez-vous que quantite est un nombre
+    const prix = parseInt(item.prix) || 0;  // Assurez-vous que prix est un nombre
+    return acc + quantite * prix;
+  }, 0);
   const fraisLivraison = parseInt(livraison) || 0;
   const totalFinal = totalProduits + fraisLivraison;
 
   const handleCommande = async () => {
-    if (!nomPatient || fraisLivraison < 0 || panier.length === 0 || !selectedUserId) {
+    if (!nomPatient || fraisLivraison < 0 || panier.length === 0) {
       setMessage('Veuillez remplir tous les champs correctement.');
       return;
     }
@@ -68,7 +91,7 @@ export default function CommandePage() {
         adresse,
         panier,
         total: totalFinal,
-        userId: selectedUserId,
+        userId: user.id,
         automobileId: selectedAutomobileId,
         chauffeurId: selectedChauffeurId
       });
@@ -102,21 +125,23 @@ export default function CommandePage() {
           <div className="bg-white p-6 rounded-lg shadow-md space-y-5">
             {/* Nom du patient */}
             <div>
-              <label className="block text-gray-700 font-semibold mb-1">Nom du patient *</label>
+              <label className="block text-gray-700 font-semibold mb-1">Nom du patient / client *</label>
               <input
                 type="text"
                 className="w-full border p-2 rounded focus:ring-2 focus:ring-green-500"
                 placeholder="Ex: Jean Dupont"
                 value={nomPatient}
+                required
                 onChange={(e) => setNomPatient(e.target.value)}
               />
             </div>
 
             {/* Téléphone */}
             <div>
-              <label className="block text-gray-700 font-semibold mb-1">Téléphone *</label>
+              <label className="block text-gray-700 font-semibold mb-1">N°téléphone du patient / client *</label>
               <input
                 type="text"
+                required
                 className="w-full border p-2 rounded focus:ring-2 focus:ring-green-500"
                 placeholder="Ex: 77 000 00 00"
                 value={telephone}
@@ -124,32 +149,16 @@ export default function CommandePage() {
               />
             </div>
 
-            {/* Responsable */}
-            <div>
-              <label className="block text-gray-700 font-semibold mb-1">Responsable *</label>
-              <select
-                value={selectedUserId}
-                onChange={(e) => setSelectedUserId(e.target.value)}
-                className="w-full border p-2 rounded focus:ring-2 focus:ring-green-500"
-              >
-                <option value="">Sélectionner un responsable</option>
-                {Array.isArray(users) && users.map((user) => (
-                  <option key={user.id} value={user.id}>
-                    {user.prenom} {user.nom}
-                  </option>
-                ))}
-              </select>
-            </div>
-
             {/* Chauffeur */}
             <div>
-              <label className="block text-gray-700 font-semibold mb-1">Chauffeur</label>
+              <label className="block text-gray-700 font-semibold mb-1">Nom du livreur *</label>
               <select
                 value={selectedChauffeurId}
+                required
                 onChange={(e) => setSelectedChauffeurId(e.target.value)}
                 className="w-full border p-2 rounded focus:ring-2 focus:ring-green-500"
               >
-                <option value="">Sélectionner un chauffeur</option>
+                <option value="">Sélectionner un livreur</option>
                 {Array.isArray(chauffeurs) && chauffeurs.map((chauffeur) => (
                   <option key={chauffeur.id} value={chauffeur.id}>
                     {chauffeur.prenom} {chauffeur.nom}
@@ -160,9 +169,10 @@ export default function CommandePage() {
 
             {/* Véhicule */}
             <div>
-              <label className="block text-gray-700 font-semibold mb-1">Véhicule *</label>
+              <label className="block text-gray-700 font-semibold mb-1">Véhicule de livraison N° *</label>
               <select
                 value={selectedAutomobileId}
+                required
                 onChange={(e) => setSelectedAutomobileId(e.target.value)}
                 className="w-full border p-2 rounded focus:ring-2 focus:ring-green-500"
               >
@@ -177,9 +187,10 @@ export default function CommandePage() {
 
             {/* Livraison */}
             <div>
-              <label className="block text-gray-700 font-semibold mb-1">Livraison *</label>
+              <label className="block text-gray-700 font-semibold mb-1">Frais de Livraison *</label>
               <select
                 value={livraison}
+                required
                 onChange={(e) => setLivraison(e.target.value)}
                 className="w-full border p-2 rounded focus:ring-2 focus:ring-green-500"
               >
@@ -194,12 +205,13 @@ export default function CommandePage() {
 
             {/* Adresse */}
             <div>
-              <label className="block text-gray-700 font-semibold mb-1">Adresse</label>
+              <label className="block text-gray-700 font-semibold mb-1">Lieu de livraison *</label>
               <input
                 type="text"
                 className="w-full border p-2 rounded focus:ring-2 focus:ring-green-500"
                 placeholder="Ex: Sacré-Cœur 3"
                 value={adresse}
+                required
                 onChange={(e) => setAdresse(e.target.value)}
               />
             </div>

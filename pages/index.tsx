@@ -9,7 +9,7 @@ export default function Home() {
       {/* Section Hero */}
       <div className="relative h-screen w-full overflow-hidden">
         <Image
-          src="/Arriere plan.png" // Ton image de fond
+          src="/A1.png" // Ton image de fond
           alt="Pharmacie"
           fill
           priority
@@ -21,24 +21,6 @@ export default function Home() {
 
         {/* Contenu centré */}
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white px-4">
-          <motion.h1
-            initial={{ opacity: 0, y: -50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1 }}
-            className="text-4xl md:text-6xl text-black font-bold mb-6 drop-shadow-lg"
-          >
-            Votre santé, notre priorité
-          </motion.h1>
-
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5, duration: 1 }}
-            className="text-lg md:text-2xl text-black drop-shadow-md"
-          >
-            Médicaments livrés 7j/7 avec ou sans ordonnance
-          </motion.p>
-
           {/* Scroll Button */}
           <motion.a
             href="#services"
@@ -75,7 +57,7 @@ export default function Home() {
           >
             <Image src="/LogoVert.png" width={80} height={80} alt="Livraison" />
             <h3 className="text-xl font-bold mt-4 mb-2 text-green-600">Livraison Express</h3>
-            <p className="text-gray-600">Recevez vos médicaments rapidement à domicile en toute sécurité.</p>
+            <p className="text-gray-600">Recevez vos médicaments à l'hôpital et à domicile en un rien de temps.</p>
           </motion.div>
 
           {/* Service 2 */}
@@ -87,7 +69,7 @@ export default function Home() {
             className="bg-white rounded-xl shadow-lg p-8 flex flex-col items-center text-center hover:shadow-2xl transition"
           >
             <Image src="/O2.jpg" width={80} height={80} alt="Ordonnance" />
-            <h3 className="text-xl font-bold mt-4 mb-2 text-green-600">Commande avec Ordonnance</h3>
+            <h3 className="text-xl font-bold mt-4 mb-2 text-green-600">Commande avec ou sans Ordonnance</h3>
             <p className="text-gray-600">Chiffrez facilement vos ordonnances depuis notre application.</p>
           </motion.div>
 
@@ -100,7 +82,7 @@ export default function Home() {
             className="bg-white rounded-xl shadow-lg p-8 flex flex-col items-center text-center hover:shadow-2xl transition"
           >
             <Image src="/c1.png" width={80} height={80} alt="Commande" />
-            <h3 className="text-xl font-bold mt-4 mb-2 text-green-600">Suivi de Commande</h3>
+            <h3 className="text-xl font-bold mt-4 mb-2 text-green-600">Suivi de l'expédition</h3>
             <p className="text-gray-600">Suivez en temps réel la préparation et l expédition de vos commandes.</p>
           </motion.div>
         </div>
@@ -115,7 +97,7 @@ export default function Home() {
           transition={{ duration: 0.6 }}
           className="text-3xl font-bold mb-6"
         >
-          Commencez votre commande maintenant
+          Qui sommes nous ?
         </motion.h2>
 
         <motion.div
@@ -124,8 +106,8 @@ export default function Home() {
           viewport={{ once: true }}
           transition={{ delay: 0.3, duration: 0.6 }}
         >
-          <Link href="/produits" className="bg-white text-green-600 font-bold py-3 px-8 rounded-full hover:bg-gray-100 transition text-lg">
-            Voir nos produits
+          <Link href="#" className="bg-white text-green-600 font-bold py-3 px-8 rounded-full hover:bg-gray-100 transition text-lg">
+            Suivez nous
           </Link>
         </motion.div>
       </section>

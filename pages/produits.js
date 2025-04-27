@@ -92,6 +92,7 @@ export default function Produits() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5, duration: 0.8 }}
         >
+          {/* Navigation Options
           <div className="container mx-auto flex flex-col md:flex-row justify-center items-center md:space-x-9 py-6">
             {['Médicaments', 'Ordonnance', 'Commandes'].map((item, index) => (
               <Link
@@ -103,6 +104,7 @@ export default function Produits() {
               </Link>
             ))}
           </div>
+           */}
         </motion.div>
 
         {/* Message */}
@@ -119,7 +121,8 @@ export default function Produits() {
         {/* Section Résultats */}
         <div className="mt-10 px-5">
           <h2 className="text-2xl font-bold mb-8 text-center">
-            Livré chez vous 7j/7, Avec ou sans ordonnance
+            Consultez la quantité de vos médicaments, 
+            Commandez-les depuis un hôpital ou un domicile, puis recevez votre livraison en 10 minutes 24h/7j
           </h2>
 
           <div className="flex flex-col lg:flex-row gap-10">
