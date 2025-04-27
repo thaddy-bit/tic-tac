@@ -4,7 +4,7 @@ import { addToPanier } from '@/lib/panier';
 import Image from 'next/image';
 import { Search } from 'lucide-react';
 import { motion } from 'framer-motion';
-import Link from "next/link";
+// import Link from "next/link";
 
 export default function Produits() {
   const [query, setQuery] = useState('');

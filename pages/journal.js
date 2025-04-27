@@ -21,7 +21,7 @@ export default function Journal() {
 
         const data = await res.json();
         setUser(data);
-      } catch (error) {
+      } catch {
         router.push("/login");
       }
     };
@@ -68,7 +68,7 @@ export default function Journal() {
     }
 
     try {
-      const res = await fetch(`/api/commandes/pdf?date_debut=${dateDebut}&date_fin=${dateFin}`);
+      const res = await fetch(`/api/commandes/pdf?date_debut=${dateDebut}&date_fin=${dateFin}&user_id=${user.id}`);
       if (!res.ok) {
         throw new Error('Erreur lors de la récupération des commandes.');
       }
@@ -90,7 +90,7 @@ export default function Journal() {
         commande.id,
         new Date(commande.date_commande).toLocaleDateString(),
         commande.statut,
-        `${commande.montant_total.toFixed(2)} €`
+        `${commande.livraison.toLocaleString('fr-FR')} FCFA`
       ]);
 
       autoTable(doc, {
@@ -154,7 +154,7 @@ export default function Journal() {
 
         {/* Montant total */}
         <div className="bg-blue-100 p-4 rounded-lg mb-6">
-          <p className="font-semibold text-lg">Montant total des commandes : <span className="text-blue-600">{montantTotal} FCFA</span></p>
+          <p className="font-semibold text-lg">Montant total des commandes : <span className="text-blue-600">{montantTotal.toLocaleString('fr-FR')} FCFA</span></p>
         </div>
 
         {/* Liste commandes */}
@@ -181,8 +181,8 @@ export default function Journal() {
                 </div>
                 <p className="text-gray-600">Date : {new Date(commande.date_commande).toLocaleDateString()}</p>
                 <div className="lg:flex space-x-5">
-                <p className="font-semibold text-blue-600">Livraison : {commande.livraison} FCFA</p>
-                <p className="font-semibold text-red-600"> Total : {commande.total} FCFA</p>
+                <p className="font-semibold text-blue-600">Livraison : {commande.livraison.toLocaleString('fr-FR')} FCFA</p>
+                <p className="font-semibold text-red-600"> Total : {commande.total.toLocaleString('fr-FR')} FCFA</p>
                 </div>
               </div>
             ))

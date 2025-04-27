@@ -11,7 +11,7 @@ import CodeValidationModal from "./CodeValidationModal";
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  //  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const router = useRouter();
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [user, setUser] = useState(null);
@@ -26,7 +26,7 @@ export default function Navbar() {
         if (!res.ok) throw new Error("Non connecté");
         const data = await res.json();
         setUser(data); // Stocker l'utilisateur
-      } catch (error) {
+      } catch {
         setUser(null);
       }
     };
@@ -50,7 +50,8 @@ export default function Navbar() {
 
   const handleLogout = async () => {
     await fetch("/api/logout", { method: "POST" });
-    setIsAuthenticated(false);
+    // setIsAuthenticated(false);
+    setUser(null);
     router.push("/");
   };
 

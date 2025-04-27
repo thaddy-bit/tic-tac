@@ -28,7 +28,7 @@ export default function CommandePage() {
   
           const data = await res.json();
           setUser(data);
-        } catch (error) {
+        } catch {
           router.push("/login");
         }
       };
@@ -43,6 +43,7 @@ export default function CommandePage() {
   }, []);
 
   useEffect(() => {
+    
     async function loadData() {
       try {
         const [usersRes, chauffeursRes, automobilesRes] = await Promise.all([

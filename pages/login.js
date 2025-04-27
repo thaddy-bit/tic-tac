@@ -76,7 +76,7 @@ export default function Login() {
         </form>
 
         <p className="text-center text-sm text-gray-500">
-          Vous n'avez pas de compte ? <a href="#" className="text-green-600 hover:underline">Créer un compte</a>
+          Vous n avez pas de compte ? <a href="#" className="text-green-600 hover:underline">Créer un compte</a>
         </p>
       </div>
     </div>

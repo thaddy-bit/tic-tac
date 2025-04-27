@@ -57,7 +57,7 @@ export default function Home() {
           >
             <Image src="/LogoVert.png" width={80} height={80} alt="Livraison" />
             <h3 className="text-xl font-bold mt-4 mb-2 text-green-600">Livraison Express</h3>
-            <p className="text-gray-600">Recevez vos médicaments à l'hôpital et à domicile en un rien de temps.</p>
+            <p className="text-gray-600">Recevez vos médicaments à l hôpital et à domicile en un rien de temps.</p>
           </motion.div>
 
           {/* Service 2 */}
@@ -82,7 +82,7 @@ export default function Home() {
             className="bg-white rounded-xl shadow-lg p-8 flex flex-col items-center text-center hover:shadow-2xl transition"
           >
             <Image src="/c1.png" width={80} height={80} alt="Commande" />
-            <h3 className="text-xl font-bold mt-4 mb-2 text-green-600">Suivi de l'expédition</h3>
+            <h3 className="text-xl font-bold mt-4 mb-2 text-green-600">Suivi de l expédition</h3>
             <p className="text-gray-600">Suivez en temps réel la préparation et l expédition de vos commandes.</p>
           </motion.div>
         </div>

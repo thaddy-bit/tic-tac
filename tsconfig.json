@@ -17,6 +17,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "components/CodeValidationModal.tsx", "pages/journal.js", "pages/api/journal.js"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "components/CodeValidationModal.tsx", "pages/journal.js", "pages/api/journal.js", "pages/api/commandes/pdf.js"],
   "exclude": ["node_modules"]
 }
