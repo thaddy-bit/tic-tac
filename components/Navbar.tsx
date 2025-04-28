@@ -52,7 +52,7 @@ export default function Navbar() {
     await fetch("/api/auth/logout", {
       method: "POST",
     });
-    router.push("/"); // 👈 Retourne sur la page Login
+    router.push("/login"); // 👈 Retourne sur la page Login
   };
 
   // Fermer le dropdown quand on clique à l'extérieur
