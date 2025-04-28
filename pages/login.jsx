@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useRouter } from "next/router";
 import Layout from "../components/Layout";
 import Head from "next/head";
+import Link from "next/link";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -145,9 +146,9 @@ export default function Login() {
             <div className="px-8 pb-6 text-center">
               <p className="text-sm text-gray-600">
                 Pas encore de compte?{" "}
-                <a href="/register" className="font-medium text-blue-600 hover:text-blue-500">
+                <Link href="/register" className="font-medium text-blue-600 hover:text-blue-500">
                   Créer un compte
-                </a>
+                </Link>
               </p>
             </div>
           </div>
