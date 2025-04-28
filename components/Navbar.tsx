@@ -32,7 +32,7 @@ export default function Navbar() {
     };
     fetchUser();
   }, []);
-  /////////////////////
+  ////////////////////
 
   const handleLinkClick = (path: string) => {
     if (path === "/produits") {
@@ -48,11 +48,11 @@ export default function Navbar() {
     router.push(redirectPath);
   };
 
-  const handleLogout = async () => {
-    await fetch("/api/logout", { method: "POST" });
-    // setIsAuthenticated(false);
-    setUser(null);
-    router.push("/");
+  const logout = async () => {
+    await fetch("/api/auth/logout", {
+      method: "POST",
+    });
+    router.push("/"); // 👈 Retourne sur la page Login
   };
 
   // Fermer le dropdown quand on clique à l'extérieur
@@ -119,7 +119,7 @@ export default function Navbar() {
                       </Link>
                       <button
                         onClick={() => {
-                          handleLogout();
+                          logout();
                           setIsDropdownOpen(false);
                         }}
                         className="w-full text-left px-4 py-2 hover:bg-green-100 text-red-500"
@@ -191,7 +191,7 @@ export default function Navbar() {
                       </Link>
                       <button
                         onClick={() => {
-                          handleLogout();
+                          logout();
                           setIsDropdownOpen(false);
                         }}
                         className="w-full text-left px-4 py-2 hover:bg-green-100 text-red-500"
