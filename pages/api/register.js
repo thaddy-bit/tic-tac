@@ -8,27 +8,40 @@ export default async function handler(req, res) {
 
   const { nom, prenom, telephone, email, password, role } = req.body;
 
+  // Vérification des champs requis
   if (!nom || !prenom || !telephone || !email || !password || !role) {
     return res.status(400).json({ message: 'Tous les champs sont requis.' });
   }
 
+  // Validation de l'email avec une regex simple
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({ message: 'Email invalide.' });
+  }
+
+  // Validation du téléphone (par exemple, format français)
+  const phoneRegex = /^(\+33|0)[1-9](\d{8})$/;
+  if (!phoneRegex.test(telephone)) {
+    return res.status(400).json({ message: 'Numéro de téléphone invalide.' });
+  }
+
   try {
-    // 1. Vérifier si l'email existe déjà
+    // Vérifier si l'email existe déjà
     const [existingEmail] = await pool.query('SELECT id FROM users WHERE email = ?', [email]);
     if (existingEmail.length > 0) {
       return res.status(409).json({ message: 'Email déjà utilisé.' });
     }
 
-    // 2. Vérifier si le téléphone existe déjà
+    // Vérifier si le téléphone existe déjà
     const [existingPhone] = await pool.query('SELECT id FROM users WHERE telephone = ?', [telephone]);
     if (existingPhone.length > 0) {
       return res.status(409).json({ message: 'Téléphone déjà utilisé.' });
     }
 
-    // 3. Hasher le mot de passe
+    // Hasher le mot de passe
     const hashedPassword = await bcrypt.hash(password, 10); // Salt rounds = 10
 
-    // 4. Insérer l'utilisateur
+    // Insérer l'utilisateur dans la base de données
     await pool.query(
       `INSERT INTO users (nom, prenom, telephone, email, password, etat, role)
        VALUES (?, ?, ?, ?, ?, 'actif', ?)`,

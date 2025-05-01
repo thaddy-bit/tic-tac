@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
-import Layout from "../components/Layout";
 import Head from "next/head";
 import Link from "next/link";
 
@@ -15,7 +14,7 @@ export default function Login() {
     e.preventDefault();
     setError("");
     setIsLoading(true);
-
+  
     try {
       const res = await fetch("/api/auth/login", {
         method: "POST",
@@ -24,11 +23,17 @@ export default function Login() {
         },
         body: JSON.stringify({ email, password })
       });
-
+  
+      const data = await res.json();
+  
       if (res.ok) {
-        router.push("/dashboard");
+        // Redirection selon le rôle
+        if (data.role === "simple") {
+          router.push("/accueil");
+        } else {
+          router.push("/dashboard");
+        }
       } else {
-        const data = await res.json();
         setError(data.message || "Erreur de connexion");
       }
     } catch (err) {
@@ -36,10 +41,10 @@ export default function Login() {
     } finally {
       setIsLoading(false);
     }
-  };
+  };  
 
   return (
-    <Layout>
+    <>
       <Head>
         <title>Connexion</title>
       </Head>
@@ -49,7 +54,7 @@ export default function Login() {
           <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
             <div className="bg-gray-50 from-blue-600 to-indigo-700 p-6 text-center">
               <h1 className="text-3xl font-bold text-black">Bienvenue</h1>
-              <p className="text-black mt-2">Connectez-vous à votre compte</p>
+              <p className="text-black mt-2">Connectez-vous à votre compte tic tac</p>
             </div>
             
             <form onSubmit={handleSubmit} className="p-8 space-y-6">
@@ -154,6 +159,6 @@ export default function Login() {
           </div>
         </div>
       </div>
-    </Layout>
+    </>
   );
 }
