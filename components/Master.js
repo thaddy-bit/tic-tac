@@ -1,7 +1,17 @@
 import { useState, useEffect } from "react";
-import { Menu, X, Home, User, Settings, LogOut, ChevronDown, ChevronUp, Globe2, Building2 } from "lucide-react";
+import {
+  Menu,
+  X,
+  Home,
+  User,
+  LogOut,
+  ChevronDown,
+  ChevronUp,
+  Globe2,
+  Building2,
+} from "lucide-react";
 import Link from "next/link";
-import Image from 'next/image';
+import Image from "next/image";
 import { useRouter } from "next/router";
 
 export default function MenuPage({ children }) {
@@ -13,7 +23,7 @@ export default function MenuPage({ children }) {
 
   useEffect(() => {
     setIsMounted(true);
-    
+
     const handleRouteChange = () => {
       if (window.innerWidth < 768) {
         setIsSidebarOpen(false);
@@ -28,38 +38,39 @@ export default function MenuPage({ children }) {
       }
     };
 
-    // Initial setup
     handleResize();
-    router.events.on('routeChangeComplete', handleRouteChange);
-    window.addEventListener('resize', handleResize);
+    router.events.on("routeChangeComplete", handleRouteChange);
+    window.addEventListener("resize", handleResize);
 
     return () => {
-      router.events.off('routeChangeComplete', handleRouteChange);
-      window.removeEventListener('resize', handleResize);
+      router.events.off("routeChangeComplete", handleRouteChange);
+      window.removeEventListener("resize", handleResize);
     };
   }, [router]);
 
-  // Vérifie si l'utilisateur est connecté
-    useEffect(() => {
-        const fetchUser = async () => {
-          try {
-            const res = await fetch("/api/auth/me");
-            if (!res.ok) throw new Error();
-            const data = await res.json();
-            setUser(data);
-          } catch {
-            router.push("/login");
-          }
-        };
-        fetchUser();
-      }, [router]);
-    ////////////////////
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await fetch("/api/auth/me");
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+        setUser(data);
+      } catch {
+        router.push("/login");
+      }
+    };
+    fetchUser();
+  }, [router]);
+
+  if (!user) {
+    return null; // Évite le clignotement
+  }
 
   const logout = async () => {
     await fetch("/api/auth/logout", {
       method: "POST",
     });
-    router.push("/login"); // 👈 Retourne sur la page Login
+    router.push("/login");
   };
 
   const toggleSubmenu = (menu) => {
@@ -69,7 +80,7 @@ export default function MenuPage({ children }) {
 
   const NavItem = ({ href, icon: Icon, label, subItems }) => {
     if (!isMounted) return null;
-    
+
     const isActive = router.pathname.startsWith(href);
     const hasSubItems = subItems && subItems.length > 0;
 
@@ -80,7 +91,7 @@ export default function MenuPage({ children }) {
             <button
               onClick={() => toggleSubmenu(href)}
               className={`flex justify-between items-center w-full p-3 font-semibold rounded-lg transition-colors ${
-                isActive ? 'bg-green-700 text-white' : 'text-white hover:bg-green-600'
+                isActive ? "bg-green-700 text-white" : "text-white hover:bg-green-600"
               }`}
               aria-expanded={activeSubmenu === href}
             >
@@ -90,7 +101,7 @@ export default function MenuPage({ children }) {
               </span>
               {activeSubmenu === href ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
             </button>
-            
+
             {activeSubmenu === href && (
               <div className="ml-6 mt-1 space-y-2">
                 {subItems.map((item) => (
@@ -98,9 +109,9 @@ export default function MenuPage({ children }) {
                     key={item.href}
                     href={item.href}
                     className={`block py-2 px-3 rounded text-sm transition-colors ${
-                      router.pathname === item.href 
-                        ? 'bg-green-700 text-white' 
-                        : 'text-white hover:bg-green-600'
+                      router.pathname === item.href
+                        ? "bg-green-700 text-white"
+                        : "text-white hover:bg-green-600"
                     }`}
                     legacyBehavior
                   >
@@ -114,7 +125,7 @@ export default function MenuPage({ children }) {
           <Link
             href={href}
             className={`flex items-center gap-2 p-3 font-semibold rounded-lg transition-colors ${
-              isActive ? 'bg-green-700 text-white' : 'text-white hover:bg-green-600'
+              isActive ? "bg-green-700 text-white" : "text-white hover:bg-green-600"
             }`}
             legacyBehavior
           >
@@ -178,7 +189,6 @@ export default function MenuPage({ children }) {
 
   return (
     <div className="flex h-screen bg-gray-100 overflow-hidden">
-      {/* Overlay pour mobile */}
       {isSidebarOpen && (
         <div
           className="fixed inset-0 bg-black bg-opacity-50 z-20 md:hidden"
@@ -187,7 +197,6 @@ export default function MenuPage({ children }) {
         />
       )}
 
-      {/* Sidebar */}
       <aside
         className={`fixed inset-y-0 left-0 bg-green-600 w-64 p-5 shadow-lg z-30 transform ${
           isSidebarOpen ? "translate-x-0" : "-translate-x-64"
@@ -202,75 +211,41 @@ export default function MenuPage({ children }) {
           <X size={24} />
         </button>
 
-        {/* Logo */}
         <div className="mb-8">
-          <Image 
-            src="/logo.png" 
-            alt="Logo de l'application" 
-            width={200} 
-            height={100} 
-            className="object-contain max-h-16 w-auto"
-            priority
+          <Image
+            src="/logo.png"
+            alt="Logo"
+            width={150}
+            height={40}
+            className="mx-auto"
           />
         </div>
 
-        {/* Menu scrollable */}
-        <nav className="flex-1 overflow-y-auto pb-4">
-          <div className="space-y-2">
-            {menuItems.map((item) => (
-              <NavItem key={item.href} {...item} />
-            ))}
-          </div>
+        <nav className="flex-1 space-y-2 overflow-y-auto">
+          {menuItems.map((item) => (
+            <NavItem key={item.href} {...item} />
+          ))}
         </nav>
 
-        {/* Bottom section */}
-        <div className="mt-auto pt-4 border-t border-green-700">
-          <Link
-            href="/settings"
-            className={`flex items-center gap-2 p-3 font-semibold rounded-lg transition-colors ${
-              router.pathname === '/settings' 
-                ? 'bg-green-700 text-white' 
-                : 'text-white hover:bg-green-600'
-            }`}
-            legacyBehavior
-          >
-            <a className="flex items-center gap-2">
-              <Settings size={20} />
-              Paramètres
-            </a>
-          </Link>
-          <button
-            onClick={() => {
-              logout();
-            }}
-            className="flex items-center gap-2 p-3 font-semibold text-black hover:bg-green-600 rounded-lg transition-colors"
-            legacyBehavior
-          >
-            <LogOut size={20} />
-            Déconnexion
-          </button>
-        </div>
+        <button
+          onClick={logout}
+          className="mt-auto flex items-center gap-2 p-3 text-white font-semibold bg-red-600 rounded-lg hover:bg-red-700 transition-colors"
+        >
+          <LogOut size={20} />
+          Déconnexion
+        </button>
       </aside>
 
-      {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="bg-green-700 shadow-md p-4 flex justify-between items-center">
-          <button 
-            className="md:hidden text-white" 
-            onClick={() => setIsSidebarOpen(true)}
-            aria-label="Ouvrir le menu"
-          >
+        <header className="flex items-center justify-between bg-white shadow px-4 py-3 md:hidden">
+          <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} aria-label="Ouvrir le menu">
             <Menu size={24} />
           </button>
-          <h1 className="text-xl text-white font-bold">Admin Panel</h1>
-          <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-full bg-green-500 flex items-center justify-center text-white font-bold">
-              U
-            </div>
-          </div>
+          <span className="font-semibold text-lg">Tableau de bord</span>
+          <div />
         </header>
 
-        <main className="flex-1 overflow-y-auto p-4 md:p-6 bg-gray-50">
+        <main className="flex-1 overflow-y-auto p-4">
           {children}
         </main>
       </div>

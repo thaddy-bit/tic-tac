@@ -19,7 +19,7 @@ export default function EditPays() {
       try {
         const res = await axios.get(`/api/pays/${id}`);
         setNom(res.data.nom);
-      } catch (err) {
+      } catch {
         setMessage("Erreur lors du chargement du pays.");
       } finally {
         setLoading(false);

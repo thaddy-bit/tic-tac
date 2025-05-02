@@ -19,12 +19,13 @@ export default async function handler(req, res) {
     return res.status(400).json({ message: 'Email invalide.' });
   }
 
+  /*
   // Validation du téléphone (par exemple, format français)
   const phoneRegex = /^(\+33|0)[1-9](\d{8})$/;
   if (!phoneRegex.test(telephone)) {
     return res.status(400).json({ message: 'Numéro de téléphone invalide.' });
   }
-
+  */
   try {
     // Vérifier si l'email existe déjà
     const [existingEmail] = await pool.query('SELECT id FROM users WHERE email = ?', [email]);

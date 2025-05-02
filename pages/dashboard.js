@@ -5,7 +5,8 @@ import { useState, useEffect } from "react";
 export default function Dashboard() {
   const router = useRouter();
   const [user, setUser] = useState(null);
-  
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -15,10 +16,20 @@ export default function Dashboard() {
         setUser(data);
       } catch {
         router.push("/login");
+      } finally {
+        setLoading(false);
       }
     };
     fetchUser();
   }, [router]);
+
+  if (loading) {
+    return <p>Chargement...</p>;
+  }
+
+  if (!user) {
+    return null; // On redirige déjà via router.push, pas besoin d'afficher quoi que ce soit
+  }
 
   return (
     <Master>
@@ -27,7 +38,7 @@ export default function Dashboard() {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
           <div>
             <h1 className="text-2xl font-bold text-gray-800">Tableau de bord</h1>
-            <p className="text-gray-600">Analyse des performances de l'application</p>
+            <p className="text-gray-600">Analyse des performances de l’application</p>
           </div>
         </div>
       </div>

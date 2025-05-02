@@ -89,7 +89,7 @@ export default function EditUser() {
             <div className="mx-auto h-12 w-12 rounded-full bg-green-100 flex items-center justify-center mb-4">
               <User className="h-6 w-6 text-green-600" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-900">Modifier l'utilisateur</h2>
+            <h2 className="text-2xl font-bold text-gray-900">Modifier l utilisateur</h2>
           </div>
 
           {error && (

@@ -17,7 +17,7 @@ export default function PanierBadge() {
 
     // Met à jour si d'autres composants modifient le localStorage
     window.addEventListener('storage', updateCount);
-
+ 
     // Optionnel : boucle locale pour mise à jour fréquente
     const interval = setInterval(updateCount, 1000);
 

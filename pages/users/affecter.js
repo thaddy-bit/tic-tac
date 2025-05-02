@@ -1,13 +1,11 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import Link from "next/link";
 import Master from "@/components/Master";
-import { User, Building2, Check, X, Loader } from "lucide-react";
+import { User, Building2, Check, X } from "lucide-react";
 
 export default function AffectationUtilisateurs() {
   const [users, setUsers] = useState([]);
   const [agences, setAgences] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState(null);
   const [selectedAgence, setSelectedAgence] = useState("");
   const [message, setMessage] = useState({ text: "", type: "" });
@@ -18,7 +16,7 @@ export default function AffectationUtilisateurs() {
 
   const fetchData = async () => {
     try {
-      setLoading(true);
+      
       const [usersRes, agencesRes] = await Promise.all([
         axios.get("/api/users?includeAgence=true"),
         axios.get("/api/agences")
@@ -44,7 +42,7 @@ export default function AffectationUtilisateurs() {
         type: "error" 
       });
     } finally {
-      setLoading(false);
+      // 
     }
   };
 
@@ -225,7 +223,7 @@ export default function AffectationUtilisateurs() {
             }`}
           >
             <X className="mr-2 h-4 w-4" />
-            Retirer l'affectation
+            Retirer l affectation
           </button>
           <button
             onClick={handleAffectation}
@@ -237,14 +235,14 @@ export default function AffectationUtilisateurs() {
             }`}
           >
             <Check className="mr-2 h-4 w-4" />
-            Valider l'affectation
+            Valider l affectation
           </button>
         </div>
 
         {/* Utilisateur sélectionné */}
         {selectedUser && (
           <div className="mt-8 bg-white p-6 rounded-lg shadow">
-            <h2 className="text-lg font-medium mb-4">Détails de l'affectation</h2>
+            <h2 className="text-lg font-medium mb-4">Détails de l affectation</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <h3 className="font-medium text-gray-700 mb-2">Utilisateur sélectionné :</h3>
