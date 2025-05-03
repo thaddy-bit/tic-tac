@@ -9,7 +9,7 @@ export default function CommandePage() {
   const [telephone, setTelephone] = useState('');
   const [automobiles, setAutomobiles] = useState([]);
   const [chauffeurs, setChauffeurs] = useState([]);
-  // const [selectedUserId, setSelectedUserId] = useState('');
+  
   const [selectedChauffeurId, setSelectedChauffeurId] = useState('');
   const [selectedAutomobileId, setSelectedAutomobileId] = useState('');
   const [livraison, setLivraison] = useState(0);
@@ -17,53 +17,84 @@ export default function CommandePage() {
   const [message, setMessage] = useState('');
   const router = useRouter();
   const [user, setUser] = useState(null);
+  const [loadingUser, setLoadingUser] = useState(true); // Ajouté
 
-  // Vérifie si l'utilisateur est connecté
-    useEffect(() => {
-      const fetchUser = async () => {
-        try {
-          const res = await fetch("/api/auth/me");
-          if (!res.ok) return router.push("/login");
-  
-          const data = await res.json();
-          setUser(data);
-        } catch {
-          router.push("/login");
-        }
-      };
-  
-      fetchUser();
-    }, []);
+useEffect(() => {
 
-
-  useEffect(() => {
-    const stored = JSON.parse(localStorage.getItem('panier') || '[]');
-    setPanier(stored);
-  }, []);
-
-  useEffect(() => {
-
-    async function loadData() {
-      try {
-        const [chauffeursRes, automobilesRes] = await Promise.all([
-          fetch('/api/chauffeurs'),
-          fetch('/api/automobiles')
-        ]);
-
-        const [chauffeursData, automobilesData] = await Promise.all([
-          chauffeursRes.json(),
-          automobilesRes.json()
-        ]);
-
-        setChauffeurs(chauffeursData);
-        setAutomobiles(automobilesData);
-      } catch (err) {
-        setMessage('Erreur lors du chargement des données');
-        console.error(err);
-      }
+  const fetchUser = async () => {
+    try {
+      const res = await fetch("/api/auth/me");
+      if (!res.ok) return router.push("/login");
+      const data = await res.json();
+      setUser(data);
+    } catch {
+      router.push("/login");
+    } finally {
+      setLoadingUser(false);
     }
-    loadData();
+
+    // vérification du code de validation pour la 1ere fois
+    try {
+      const res = await fetch('/api/auth/meValidation'); // Cette API doit retourner { valid: true/false }
+      const data = await res.json();
+
+      if (!data.valid) {
+        // alert("⛔ Code expiré ou invalide. Veuillez entrer un nouveau code.");
+        router.push('/code-verification'); // Redirige vers la page de saisie du code
+      }
+    } catch (err) {
+      console.error("Erreur lors de la vérification du code :", err);
+    }
+
+  };
+  fetchUser();
+}, [router]);
+
+// Vérifie automatiquement toutes les 30 secondes si le code est encore valide
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch('/api/auth/meValidation'); // Cette API doit retourner { valid: true/false }
+        const data = await res.json();
+
+        if (!data.valid) {
+          router.push('/code-verification'); // Redirige vers la page de saisie du code
+        }
+      } catch (err) {
+        console.error("Erreur lors de la vérification du code :", err);
+      }
+    }, 30000); // 30 secondes
+
+    return () => clearInterval(interval); // Nettoyage
   }, []);
+
+
+useEffect(() => {
+  const stored = JSON.parse(localStorage.getItem('panier') || '[]');
+  setPanier(stored);
+
+  async function loadData() {
+    try {
+      const [chauffeursRes, automobilesRes] = await Promise.all([
+        fetch('/api/chauffeurs'),
+        fetch('/api/automobiles')
+      ]);
+
+      const [chauffeursData, automobilesData] = await Promise.all([
+        chauffeursRes.json(),
+        automobilesRes.json()
+      ]);
+
+      setChauffeurs(chauffeursData);
+      setAutomobiles(automobilesData);
+    } catch (err) {
+      setMessage('Erreur lors du chargement des données');
+      console.error(err);
+    }
+  }
+
+  loadData();
+}, []);
 
   // Calculs dynamiques
   const totalProduits = panier.reduce((acc, item) => {
@@ -97,7 +128,7 @@ export default function CommandePage() {
         localStorage.removeItem('panier');
         setMessage('✅ Commande enregistrée avec succès !');
         setTimeout(() => {
-          router.push('/');
+          router.push('/accueil');
         }, 2000);
       }
     } catch (error) {
@@ -105,6 +136,8 @@ export default function CommandePage() {
       setMessage('❌ Une erreur est survenue.');
     }
   };
+
+  if (loadingUser) return <div className="text-center py-10">Chargement...</div>;
 
   return (
     <Layout>

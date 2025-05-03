@@ -1,16 +1,70 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import { addToPanier } from '@/lib/panier';
 import Image from 'next/image';
 import { Search } from 'lucide-react';
 import { motion } from 'framer-motion';
-// import Link from "next/link";
+import Loader from '../components/Loader';
+import { useRouter } from 'next/router';
 
 export default function Produits() {
+
   const [query, setQuery] = useState('');
   const [produits, setProduits] = useState([]);
   const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [user, setUser] = useState(null);
+  const router = useRouter();
+  const [loadingUser, setLoadingUser] = useState(true); // Ajouté
 
+  // Vérifie si l'utilisateur est connecté
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await fetch("/api/auth/me");
+        if (!res.ok) return router.push("/login");
+        const data = await res.json();
+        setUser(data);
+      } catch {
+        router.push("/login");
+      } finally {
+        setLoadingUser(false);
+      }
+      // vérification du code de validation pour la 1ere fois
+      try {
+        const res = await fetch('/api/auth/meValidation'); // Cette API doit retourner { valid: true/false }
+        const data = await res.json();
+
+        if (!data.valid) {
+          router.push('/code-verification'); // Redirige vers la page de saisie du code
+        }
+      } catch (err) {
+        console.error("Erreur lors de la vérification du code :", err);
+      }
+
+    };
+    fetchUser();
+  }, [router]);
+
+  // Vérifie automatiquement toutes les 30 secondes si le code est encore valide
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch('/api/auth/meValidation'); // Cette API doit retourner { valid: true/false }
+        const data = await res.json();
+
+        if (!data.valid) {
+          router.push('/code-verification'); // Redirige vers la page de saisie du code
+        }
+      } catch (err) {
+        console.error("Erreur lors de la vérification du code :", err);
+      }
+    }, 30000); // 30 secondes
+
+    return () => clearInterval(interval); // Nettoyage
+  }, []);
+
+  
   const handleAdd = (produit) => {
     addToPanier(produit);
     setMessage(`✅ ${produit.nom} ajouté au panier`);
@@ -21,6 +75,8 @@ export default function Produits() {
     e.preventDefault();
     setMessage('');
     setProduits([]);
+    setLoading(true);
+
     try {
       const res = await fetch(`/api/produits/search?query=${query}`);
       const data = await res.json();
@@ -28,27 +84,30 @@ export default function Produits() {
         setMessage(data.message || 'Erreur inconnue');
       } else {
         setProduits(data);
+        if (data.length === 0) setMessage("Aucun produit trouvé.");
       }
     } catch {
       setMessage('Erreur de connexion au serveur.');
+    } finally {
+      setLoading(false);
     }
   };
+
+  if (loadingUser && !user) return <div className="text-center py-10">Chargement...</div>;
 
   return (
     <Layout>
       <div className="bg-gray-100">
         {/* Hero Section */}
         <div className="relative w-full h-[450px] mt-5 overflow-hidden">
-          <div className="absolute inset-0">
-            <Image
-              src="/p1.png"
-              alt="Pharmacie"
-              fill
-              priority
-              className="object-cover"
-            />
-          </div>
-          <div className="relative z-10 flex flex-col items-center justify-center h-full px-4 text-center">
+          <Image
+            src="/p1.png"
+            alt="Pharmacie"
+            fill
+            priority
+            className="object-cover"
+          />
+          <div className="relative z-10 flex flex-col items-center justify-center h-full px-4 text-center bg-opacity-50">
             <motion.h1
               initial={{ opacity: 0, y: -30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -85,29 +144,7 @@ export default function Produits() {
           </div>
         </div>
 
-        {/* Navigation Options */}
-        <motion.div
-          className="bg-green-100 mt-10"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5, duration: 0.8 }}
-        >
-          {/* Navigation Options
-          <div className="container mx-auto flex flex-col md:flex-row justify-center items-center md:space-x-9 py-6">
-            {['Médicaments', 'Ordonnance', 'Commandes'].map((item, index) => (
-              <Link
-                key={index}
-                href="#"
-                className="text-2xl px-6 py-3 my-2 md:my-0 rounded-lg transition duration-300 font-semibold text-green-500 hover:bg-green-500 hover:text-white bg-white shadow-md"
-              >
-                {item}
-              </Link>
-            ))}
-          </div>
-           */}
-        </motion.div>
-
-        {/* Message */}
+        {/* Message de confirmation */}
         {message && (
           <motion.div
             initial={{ opacity: 0 }}
@@ -121,17 +158,20 @@ export default function Produits() {
         {/* Section Résultats */}
         <div className="mt-10 px-5">
           <h2 className="text-2xl font-bold mb-8 text-center">
-            Consultez la quantité de vos médicaments, 
-            Commandez-les depuis un hôpital ou un domicile, puis recevez votre livraison en 10 minutes 24h/7j
+            Consultez la quantité de vos médicaments,
+            commandez-les en ligne et recevez votre livraison en 10 minutes, 24h/7j
           </h2>
 
           <div className="flex flex-col lg:flex-row gap-10">
+            {/* Filtrage catégories (non utilisé pour l'instant) */}
             <div className="w-full lg:w-1/4">
               <h3 className="text-xl mb-4 font-semibold">Les catégories</h3>
-              {/* Tu peux ajouter tes filtres ici */}
+              <p className="text-gray-500">(à venir...)</p>
             </div>
 
+            {/* Liste des produits */}
             <div className="w-full">
+              {loading && <Loader />}
               {produits.length > 0 && (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {produits.map((produit) => (
@@ -163,6 +203,10 @@ export default function Produits() {
                     </motion.div>
                   ))}
                 </div>
+              )}
+
+              {!loading && produits.length === 0 && query && (
+                <p className="text-center text-gray-500 mt-6">Aucun produit trouvé.</p>
               )}
             </div>
           </div>

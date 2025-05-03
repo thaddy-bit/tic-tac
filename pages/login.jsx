@@ -30,7 +30,7 @@ export default function Login() {
         if (data.role === "simple") {
           router.push("/accueil");
         } else {
-          router.push("/dashboard");
+          router.push("/accueil");
         }
       } else {
         setError(data.message || "Erreur de connexion");
@@ -48,12 +48,17 @@ export default function Login() {
         <title>Connexion</title>
       </Head>
       
-      <div className="min-h-screen flex items-center justify-center from-blue-50 px-4">
+      <div 
+      className="min-h-screen flex items-center justify-center px-4 bg-cover bg-center"
+      style={{
+        backgroundImage: "url('/bg-login.jpeg')",
+      }}
+      >
         <div className="w-full max-w-md">
           <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
             <div className="bg-gray-50 from-blue-600 to-indigo-700 p-6 text-center">
               <h1 className="text-3xl font-bold text-black">Bienvenue</h1>
-              <p className="text-black mt-2">Connectez-vous à votre compte tic tac</p>
+              <p className="text-black mt-2">Connectez-vous à votre compte tictac</p>
             </div>
             
             <form onSubmit={handleSubmit} className="p-8 space-y-6">

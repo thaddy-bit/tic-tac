@@ -13,7 +13,7 @@ export default async function handler(req, res) {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    const [rows] = await pool.query("SELECT id, email, nom, prenom FROM users WHERE id = ?", [decoded.id]);
+    const [rows] = await pool.query("SELECT id, email, nom, prenom, agence_id FROM users WHERE id = ?", [decoded.id]);
 
     if (rows.length === 0) {
       return res.status(404).json({ message: "Utilisateur introuvable" });

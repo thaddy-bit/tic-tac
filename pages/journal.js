@@ -128,7 +128,7 @@ export default function Journal() {
   return (
     <Layout>
       <div className="max-w-6xl mx-auto px-6 py-8">
-        <h1 className="text-3xl font-bold mb-6 text-green-600">Journal de vos commandes</h1>
+        <h1 className="text-3xl font-bold mb-6 text-green-600">Journal des Opérations taxables</h1>
 
         {/* Filtres dates + bouton PDF */}
         <div className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-4 mb-6">
@@ -181,6 +181,7 @@ export default function Journal() {
                 </div>
                 <p className="text-gray-600">Date : {new Date(commande.date_commande).toLocaleDateString()}</p>
                 <div className="lg:flex space-x-5">
+                <p className="font-semibold text-green-600">Produits : {(commande.total-commande.livraison).toLocaleString('fr-FR')} FCFA</p>
                 <p className="font-semibold text-blue-600">Livraison : {commande.livraison.toLocaleString('fr-FR')} FCFA</p>
                 <p className="font-semibold text-red-600"> Total : {commande.total.toLocaleString('fr-FR')} FCFA</p>
                 </div>

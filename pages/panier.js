@@ -1,9 +1,32 @@
 import Layout from '../components/Layout';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 
 export default function PanierPage() {
   const [panier, setPanier] = useState([]);
+  const router = useRouter();
+  const [user, setUser] = useState(null);
+  const [loadingUser, setLoadingUser] = useState(true); // Ajouté
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await fetch("/api/auth/me");
+        if (!res.ok) {
+          router.replace("/login"); // remplace au lieu de "push"
+          return; // stoppe la fonction ici
+        }
+        const data = await res.json();
+        setUser(data);
+      } catch {
+        router.replace("/login"); // idem ici
+      } finally {
+        setLoadingUser(false);
+      }
+    };
+    fetchUser();
+  }, [router]);
 
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem('panier') || '[]');
@@ -25,6 +48,11 @@ export default function PanierPage() {
   };
 
   const total = panier.reduce((acc, item) => acc + item.quantite * item.prix, 0);
+
+  // Ajoute ce bloc juste avant le return principal :
+  if (loadingUser || !user) {
+    return <div className="text-center py-10">Chargement...</div>;
+  }
 
   return (
     <Layout>
