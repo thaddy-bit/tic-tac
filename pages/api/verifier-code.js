@@ -46,7 +46,7 @@ export default async function handler(req, res) {
     const token = jwt.sign(
       { user_id, code, montant, agence_id },
       process.env.JWT_SECRET,
-      { expiresIn: '3m' } // Session de 3 minutes
+      { expiresIn: '10m' } // Session de 3 minutes
     );
 
     // Configurer le cookie
@@ -55,7 +55,7 @@ export default async function handler(req, res) {
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
       path: '/',
-      maxAge: 3 * 60 // 3 minutes
+      maxAge: 10 * 60 // 10 minutes
     };
 
     res.setHeader('Set-Cookie', serialize('code_token', token, cookieOptions));

@@ -17,39 +17,66 @@ export default async function handler(req, res) {
   }
 
   try {
-    const promises = medicaments.map((m) => {
-      return pool.query(
-        `INSERT INTO medicaments (
-          Reference, Nom, presentation, description,
-          prixAchat, prixVente, quantite, pharmacie_id
-        )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        ON DUPLICATE KEY UPDATE
-          Nom = VALUES(Nom),
-          presentation = VALUES(presentation),
-          description = VALUES(description),
-          prixAchat = VALUES(prixAchat),
-          prixVente = VALUES(prixVente),
-          quantite = VALUES(quantite),
-          pharmacie_id = VALUES(pharmacie_id)`,
-        [
-          m.Reference,
-          m.Nom,
-          m.presentation || '',
-          m.description || '',
-          parseInt(m.prixAchat),
-          parseInt(m.prixVente),
-          parseInt(m.quantite),
-          pharmacie_id
-        ]
+    for (const m of medicaments) {
+      if (!m.Reference) {
+        console.error('Médicament sans Reference:', m);
+        continue; // Skip les médicaments sans Reference
+      }
+
+      const [existing] = await pool.query(
+        'SELECT * FROM medicaments WHERE Reference = ? AND pharmacie_id = ?',
+        [m.Reference, pharmacie_id]
       );
-    });
 
-    await Promise.all(promises);
+      if (existing.length > 0) {
+        // Mise à jour si nécessaire
+        const med = existing[0];
+        if (med.quantite !== parseInt(m.quantite) || med.prixVente !== parseFloat(m.prixVente)) {
+          await pool.query(
+            `UPDATE medicaments SET
+              Nom = ?,
+              presentation = ?,
+              description = ?,
+              prixAchat = ?,
+              prixVente = ?,
+              quantite = ?
+             WHERE id = ?`,
+            [
+              m.Nom,
+              m.presentation || '',
+              m.description || '',
+              parseFloat(m.prixAchat),
+              parseFloat(m.prixVente),
+              parseInt(m.quantite),
+              med.id
+            ]
+          );
+        }
+        // on fais rien si le médicament n'a pas changé
+      } else {
+        // Insertion
+        await pool.query(
+          `INSERT INTO medicaments (
+            Reference, Nom, presentation, description,
+            prixAchat, prixVente, quantite, pharmacie_id
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+          [
+            m.Reference,
+            m.Nom,
+            m.presentation || '',
+            m.description || '',
+            parseFloat(m.prixAchat),
+            parseFloat(m.prixVente),
+            parseInt(m.quantite),
+            pharmacie_id
+          ]
+        );
+      }
+    }
 
-    res.status(200).json({ success: true, message: 'Médicaments synchronisés avec succès ✅' });
+    res.status(200).json({ success: true, message: 'Synchronisation réussie ✅' });
   } catch (error) {
     console.error('Erreur de synchronisation:', error);
-    res.status(500).json({ success: false, message: 'Erreur lors de la sauvegarde', error: error.message });
+    res.status(500).json({ success: false, message: 'Erreur serveur', error: error.message });
   }
 }

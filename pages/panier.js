@@ -9,6 +9,23 @@ export default function PanierPage() {
   const [user, setUser] = useState(null);
   const [loadingUser, setLoadingUser] = useState(true); // Ajouté
 
+  async function supprimerCodeValidation() {
+    try {
+      const response = await fetch('/api/auth/suppressionValidation', {
+        method: 'POST',
+      });
+      const data = await response.json();
+      if (response.ok) {
+        console.log('Code de validation supprimé automatiquement');
+        // Optionnel : mettre à jour l’état local, rediriger, etc.
+      } else {
+        console.error('Erreur :', data.message);
+      }
+    } catch (error) {
+      console.error('Erreur de requête :', error);
+    }
+  } 
+
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -25,8 +42,12 @@ export default function PanierPage() {
         setLoadingUser(false);
       }
     };
+    // suppression du code de validation
+    supprimerCodeValidation();
+
     fetchUser();
   }, [router]);
+ 
 
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem('panier') || '[]');

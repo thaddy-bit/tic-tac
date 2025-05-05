@@ -24,17 +24,27 @@ export default function Login() {
       });
   
       const data = await res.json();
-  
+
       if (res.ok) {
         // Redirection selon le rôle
+        console.log("Rôle utilisateur:", data.role); // Doit afficher "simple" ou autre
         if (data.role === "simple") {
           router.push("/accueil");
         } else {
-          router.push("/accueil");
+          if(data.role === "admin") {
+            router.push("/dashboard");
+          } else {
+            if(data.role === "livreur") {
+              router.push("/menu_livreur");
+            } else {
+              router.push("/"); // pas de page
+            }
+          }
         }
       } else {
         setError(data.message || "Erreur de connexion");
       }
+
     } catch (err) {
       setError("Une erreur réseau est survenue");
     } finally {
@@ -51,7 +61,7 @@ export default function Login() {
       <div 
       className="min-h-screen flex items-center justify-center px-4 bg-cover bg-center"
       style={{
-        backgroundImage: "url('/bg-login.jpeg')",
+        backgroundImage: "url('/c01.png')",
       }}
       >
         <div className="w-full max-w-md">

@@ -32,7 +32,7 @@ export default function Accueil() {
 
     return (
         <Layout>
-            {/* Section Hero */}
+            {/* Section Hero *
             <div className="relative h-screen w-full overflow-hidden">
                 <Image
                     src="/A2.png" // Ton image de fond
@@ -42,12 +42,12 @@ export default function Accueil() {
                     className="object-cover"
                 />
 
-                {/* Overlay */}
+                
                 <div className="absolute inset-0  bg-opacity-100" />
 
-                {/* Contenu centré */}
+                
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white px-4">
-                    {/* Scroll Button */}
+                    {/* Scroll Button 
                     <motion.a
                         href="#services"
                         initial={{ opacity: 0 }}
@@ -59,8 +59,8 @@ export default function Accueil() {
                     </motion.a>
                 </div>
             </div>
+             Section Services */}
 
-            {/* Section Services */}
             <section id="services" className="py-20 px-6 bg-gray-100">
                 <motion.h2
                     initial={{ opacity: 0, y: 20 }}

@@ -13,7 +13,7 @@ export default async function handler(req, res) {
 
   try {
     const [rows] = await pool.query(
-      'SELECT * FROM produits WHERE id = ? OR nom LIKE ?',
+      'SELECT * FROM produits WHERE id = ? OR Nom LIKE ?',
       [query, `${query}%`]
     );
 

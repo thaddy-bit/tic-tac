@@ -34,7 +34,6 @@ export default function Produits() {
       try {
         const res = await fetch('/api/auth/meValidation'); // Cette API doit retourner { valid: true/false }
         const data = await res.json();
-
         if (!data.valid) {
           router.push('/code-verification'); // Redirige vers la page de saisie du code
         }
@@ -47,6 +46,8 @@ export default function Produits() {
   }, [router]);
 
   // Vérifie automatiquement toutes les 30 secondes si le code est encore valide
+
+  /*
   useEffect(() => {
     const interval = setInterval(async () => {
       try {
@@ -63,7 +64,7 @@ export default function Produits() {
 
     return () => clearInterval(interval); // Nettoyage
   }, []);
-
+*/
   
   const handleAdd = (produit) => {
     addToPanier(produit);
@@ -183,15 +184,8 @@ export default function Produits() {
                       className="bg-white rounded-lg shadow p-5 flex flex-col justify-between"
                     >
                       <div>
-                        <h4 className="text-green-800 font-bold text-lg">{produit.nom}</h4>
+                        <h4 className="text-green-800 font-bold text-lg">{produit.nom} || {produit.pharmacie_id}</h4>
                         <p className="text-gray-600">{produit.description}</p>
-                        <p className="text-sm text-gray-500">{produit.pharmacie_nom}</p>
-                        <p className="font-semibold text-gray-700 mt-2">
-                          Prix : {produit.prix} FCFA
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          Quantité : {produit.quantite}
-                        </p>
                       </div>
 
                       <button

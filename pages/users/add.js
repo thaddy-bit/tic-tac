@@ -220,7 +220,7 @@ export default function Register() {
                 >
                   <option value="simple">Utilisateur simple</option>
                   <option value="admin">Administrateur</option>
-                  <option value="super">Super Administrateur</option>
+                  <option value="livreur">Livreur</option>
                 </select>
               </div>
 

@@ -41,7 +41,16 @@ export default async function handler(req, res) {
 
     res.setHeader("Set-Cookie", serialize("token", token, cookieOptions));
 
-    return res.status(200).json({ message: "Connexion réussie" });
+     // 5. Réponse avec les infos nécessaires
+     return res.status(200).json({
+      message: "Connexion réussie",
+      role: user.role, // Renvoyé au frontend
+      user: {
+        id: user.id,
+        email: user.email
+      }
+    });
+
 
   } catch (error) {
     console.error(error);

@@ -19,6 +19,23 @@ export default function CommandePage() {
   const [user, setUser] = useState(null);
   const [loadingUser, setLoadingUser] = useState(true); // Ajouté
 
+  async function supprimerCodeValidation() {
+    try {
+      const response = await fetch('/api/auth/suppressionValidation', {
+        method: 'POST',
+      });
+      const data = await response.json();
+      if (response.ok) {
+        console.log('Code de validation supprimé automatiquement');
+        // Optionnel : mettre à jour l’état local, rediriger, etc.
+      } else {
+        console.error('Erreur :', data.message);
+      }
+    } catch (error) {
+      console.error('Erreur de requête :', error);
+    }
+  }
+
 useEffect(() => {
 
   const fetchUser = async () => {
@@ -128,6 +145,9 @@ useEffect(() => {
         localStorage.removeItem('panier');
         setMessage('✅ Commande enregistrée avec succès !');
         setTimeout(() => {
+          // on supprime le code de validation
+          supprimerCodeValidation();
+          
           router.push('/accueil');
         }, 2000);
       }
