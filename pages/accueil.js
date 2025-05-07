@@ -32,35 +32,6 @@ export default function Accueil() {
 
     return (
         <Layout>
-            {/* Section Hero *
-            <div className="relative h-screen w-full overflow-hidden">
-                <Image
-                    src="/A2.png" // Ton image de fond
-                    alt="Pharmacie"
-                    fill
-                    priority
-                    className="object-cover"
-                />
-
-                
-                <div className="absolute inset-0  bg-opacity-100" />
-
-                
-                <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white px-4">
-                    {/* Scroll Button 
-                    <motion.a
-                        href="#services"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 1, duration: 1 }}
-                        className="mt-10 text-green-400 hover:text-green-500 text-4xl animate-bounce"
-                    >
-                        ↓
-                    </motion.a>
-                </div>
-            </div>
-             Section Services */}
-
             <section id="services" className="py-20 px-6 bg-gray-100">
                 <motion.h2
                     initial={{ opacity: 0, y: 20 }}
@@ -81,7 +52,7 @@ export default function Accueil() {
                         transition={{ duration: 0.6 }}
                         className="bg-white rounded-xl shadow-lg p-8 flex flex-col items-center text-center hover:shadow-2xl transition"
                     >
-                        <Image src="/LogoVert.png" width={80} height={80} alt="Livraison" />
+                        <Image src="/Livraison.png" width={80} height={80} alt="Livraison" />
                         <h3 className="text-xl font-bold mt-4 mb-2 text-green-600">Livraison Express</h3>
                         <p className="text-gray-600">Recevez vos médicaments à l hôpital et à domicile en un rien de temps.</p>
                     </motion.div>
@@ -94,7 +65,7 @@ export default function Accueil() {
                         transition={{ duration: 0.8 }}
                         className="bg-white rounded-xl shadow-lg p-8 flex flex-col items-center text-center hover:shadow-2xl transition"
                     >
-                        <Image src="/O2.jpg" width={80} height={80} alt="Ordonnance" />
+                        <Image src="/Ordonances.png" width={80} height={80} alt="Ordonnance" />
                         <h3 className="text-xl font-bold mt-4 mb-2 text-green-600">Commande avec ou sans Ordonnance</h3>
                         <p className="text-gray-600">Chiffrez facilement vos ordonnances depuis notre application.</p>
                     </motion.div>
@@ -107,7 +78,7 @@ export default function Accueil() {
                         transition={{ duration: 1 }}
                         className="bg-white rounded-xl shadow-lg p-8 flex flex-col items-center text-center hover:shadow-2xl transition"
                     >
-                        <Image src="/c1.png" width={80} height={80} alt="Commande" />
+                        <Image src="/Commandes.png" width={80} height={80} alt="Commande" />
                         <h3 className="text-xl font-bold mt-4 mb-2 text-green-600">Suivi de l expédition</h3>
                         <p className="text-gray-600">Suivez en temps réel la préparation et l expédition de vos commandes.</p>
                     </motion.div>

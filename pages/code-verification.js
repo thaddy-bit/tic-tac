@@ -75,7 +75,7 @@ export default function CodeValidationPage() {
       <div 
       className="min-h-screen flex items-center justify-center px-4 bg-cover bg-center"
       style={{
-        backgroundImage: "url('/bg-validation.jpeg')",
+        backgroundImage: "url('/verif.png')",
       }}
       >
 <div className="max-w-xl mx-auto mt-20 mb-20 p-6 bg-white rounded-lg shadow">

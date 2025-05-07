@@ -8,6 +8,8 @@ export default async function handler(req, res) {
   }
 
   const { code, nom_utilise, montant, user_id, agence_id } = req.body;
+  
+  console.log(req.body);
 
   if (!code || !nom_utilise || !montant || !user_id || !agence_id) {
     return res.status(400).json({ message: "Champs manquants" });

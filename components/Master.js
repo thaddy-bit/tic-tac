@@ -33,6 +33,7 @@ export default function MenuPage({ children }) {
       subItems: [
         { href: "/users/add", label: "Ajouter utilisateur" },
         { href: "/users/list", label: "Liste utilisateurs" },
+        { href: "/users/affecter", label: "Affectation utilisateur" },
       ],
     },
     {
@@ -76,8 +77,6 @@ export default function MenuPage({ children }) {
       icon: DollarSign,
       label: "Comptabilité",
       subItems: [
-        { href: "/comptabilite/commandes", label: "Journal des commandes" },
-        { href: "/comptabilite/consultations", label: "Journal consultations" },
         { href: "/comptabilite/transactions", label: "Journal transactions" },
       ],
     },
