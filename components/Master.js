@@ -77,7 +77,7 @@ export default function MenuPage({ children }) {
       icon: DollarSign,
       label: "Comptabilité",
       subItems: [
-        { href: "/comptabilite/transactions", label: "Journal transactions" },
+        { href: "/comptabilite/transaction", label: "Journal transactions" },
       ],
     },
   ];
