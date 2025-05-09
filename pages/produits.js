@@ -44,31 +44,10 @@ export default function Produits() {
     };
     fetchUser();
   }, [router]);
-
-  // Vérifie automatiquement toutes les 30 secondes si le code est encore valide
-
-  /*
-  useEffect(() => {
-    const interval = setInterval(async () => {
-      try {
-        const res = await fetch('/api/auth/meValidation'); // Cette API doit retourner { valid: true/false }
-        const data = await res.json();
-
-        if (!data.valid) {
-          router.push('/code-verification'); // Redirige vers la page de saisie du code
-        }
-      } catch (err) {
-        console.error("Erreur lors de la vérification du code :", err);
-      }
-    }, 30000); // 30 secondes
-
-    return () => clearInterval(interval); // Nettoyage
-  }, []);
-*/
   
   const handleAdd = (produit) => {
     addToPanier(produit);
-    setMessage(`✅ ${produit.nom} ajouté au panier`);
+    setMessage(`✅ ${produit.Nom} ajouté au panier`);
     setTimeout(() => setMessage(''), 3000);
   };
 
@@ -184,8 +163,9 @@ export default function Produits() {
                       className="bg-white rounded-lg shadow p-5 flex flex-col justify-between"
                     >
                       <div>
-                        <h4 className="text-green-800 font-bold text-lg">{produit.nom} || {produit.pharmacie_id}</h4>
+                        <h4 className="text-green-800 font-bold text-lg">{produit.Nom} || {produit.pharmacie_id}</h4>
                         <p className="text-gray-600">{produit.description}</p>
+                        <p className="text-red-600">Qté : {produit.quantite}</p>
                       </div>
 
                       <button

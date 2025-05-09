@@ -116,7 +116,7 @@ useEffect(() => {
   // Calculs dynamiques
   const totalProduits = panier.reduce((acc, item) => {
     const quantite = parseInt(item.quantite, 10) || 0;  // Assurez-vous que quantite est un nombre
-    const prix = parseInt(item.prix) || 0;  // Assurez-vous que prix est un nombre
+    const prix = parseInt(item.prixVente) || 0;  // Assurez-vous que prix est un nombre
     return acc + quantite * prix;
   }, 0);
   const fraisLivraison = parseInt(livraison) || 0;
@@ -278,8 +278,8 @@ useEffect(() => {
                 <div className="space-y-3">
                   {panier.map((item) => (
                     <div key={item.id} className="flex justify-between text-sm border-b pb-2">
-                      <span>{item.nom} × {item.quantite}</span>
-                      <span className="font-semibold">{(item.prix * item.quantite).toLocaleString()} FCFA</span>
+                      <span>{item.Nom} × {item.quantite}</span>
+                      <span className="font-semibold">{(item.prixVente * item.quantite).toLocaleString()} FCFA</span>
                     </div>
                   ))}
                 </div>

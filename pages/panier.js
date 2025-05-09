@@ -68,7 +68,7 @@ export default function PanierPage() {
     localStorage.setItem('panier', JSON.stringify(updated));
   };
 
-  const total = panier.reduce((acc, item) => acc + item.quantite * item.prix, 0);
+  const total = panier.reduce((acc, item) => acc + item.quantite * item.prixVente, 0);
 
   // Ajoute ce bloc juste avant le return principal :
   if (loadingUser || !user) {
@@ -93,13 +93,14 @@ export default function PanierPage() {
               >
                 {/* Partie Gauche : infos produit */}
                 <div className="flex-1 w-full">
-                  <h2 className="text-xl font-semibold text-green-800">{item.nom}</h2>
+                  <h2 className="text-xl font-semibold text-green-800">{item.Nom}</h2>
                   <p className="text-sm text-gray-500 mt-1">{item.description}</p>
                   <div className="flex flex-wrap gap-3 mt-3 text-sm text-gray-600">
                     <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full">
                       {item.pharmacie_nom}
                     </span>
-                    <span>Prix : <strong>{item.prix} FCFA</strong></span>
+                    <span>Prix : <strong>{item.prixVente.toLocaleString('fr-FR')} FCFA</strong></span>
+                    <span>Qte : <strong>{item.quantite}</strong></span>
                   </div>
                 </div>
 

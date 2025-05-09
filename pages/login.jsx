@@ -61,7 +61,8 @@ export default function Login() {
       <div 
       className="min-h-screen flex items-center justify-center px-4 bg-cover bg-center"
       style={{
-        backgroundImage: "url('/c01.png')",
+        backgroundImage: "url('/login01.png')",
+        // priority
       }}
       >
         <div className="w-full max-w-md">

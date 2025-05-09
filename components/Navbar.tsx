@@ -101,7 +101,7 @@ export default function Navbar() {
                       <Link href="/journal" className="block px-4 py-2 hover:bg-green-100 text-gray-700" onClick={() => setIsDropdownOpen(false)}>
                         Mes Commandes
                       </Link>
-                      <Link href="#" className="block px-4 py-2 hover:bg-green-100 text-gray-700" onClick={() => setIsDropdownOpen(false)}>
+                      <Link href="/modifier-code" className="block px-4 py-2 hover:bg-green-100 text-gray-700" onClick={() => setIsDropdownOpen(false)}>
                         Changer Mot de Passe
                       </Link>
                       <button
@@ -176,7 +176,7 @@ export default function Navbar() {
                       <Link href="/journal" className="block px-4 py-2 hover:bg-green-100 text-gray-700" onClick={() => setIsDropdownOpen(false)}>
                         Mes Commandes
                       </Link>
-                      <Link href="#" className="block px-4 py-2 hover:bg-green-100 text-gray-700" onClick={() => setIsDropdownOpen(false)}>
+                      <Link href="/modifier-code" className="block px-4 py-2 hover:bg-green-100 text-gray-700" onClick={() => setIsDropdownOpen(false)}>
                         Changer Mot de Passe
                       </Link>
                       <button
