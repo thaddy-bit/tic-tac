@@ -58,8 +58,8 @@ export default async function handler(req, res) {
         await pool.query(
           `INSERT INTO medicaments (
             Reference, Nom, presentation, description,
-            prixAchat, prixVente, quantite, pharmacie_id
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+            prixAchat, prixVente, quantite, pharmacie_id, pharmacie_nom
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           [
             m.Reference,
             m.Nom,
@@ -68,7 +68,8 @@ export default async function handler(req, res) {
             parseFloat(m.prixAchat),
             parseFloat(m.prixVente),
             parseInt(m.quantite),
-            pharmacie_id
+            pharmacie_id, 
+            m.pharmacie_nom
           ]
         );
       }

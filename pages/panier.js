@@ -126,7 +126,7 @@ export default function PanierPage() {
             {/* Résumé total */}
             <div className="bg-green-100 p-6 rounded-2xl flex flex-col md:flex-row justify-between items-center mt-8">
               <div className="text-lg font-semibold text-green-800">
-                Total à payer : {total.toFixed(0)} FCFA
+                Total à payer : {total.toLocaleString('fr-FR')} FCFA
               </div>
               <Link href="/commandes">
                 <button className="mt-4 md:mt-0 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-xl transition">

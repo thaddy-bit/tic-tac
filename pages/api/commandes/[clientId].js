@@ -1,3 +1,4 @@
+/*
 import { pool } from '@/lib/db';
 
 export default async function handler(req, res) {
@@ -5,7 +6,7 @@ export default async function handler(req, res) {
 
   try {
     const [commandes] = await pool.query(
-      'SELECT * FROM commandes WHERE client_id = ? ORDER BY date_commande DESC',
+      'SELECT * FROM commandes WHERE user_id = ? ORDER BY date_commande DESC',
       [clientId]
     );
 
@@ -25,3 +26,4 @@ export default async function handler(req, res) {
     res.status(500).json({ message: 'Erreur serveur.' });
   }
 }
+*/

@@ -1,4 +1,4 @@
-import Layout from "@/components/Layout";
+import Layout_livreur from '../components/Layout_Livreur';
 import Image from "next/image";
 import { motion } from "framer-motion";
 import Link from "next/link";
@@ -31,36 +31,7 @@ export default function Accueil() {
     }
 
     return (
-        <Layout>
-            {/* Section Hero *
-            <div className="relative h-screen w-full overflow-hidden">
-                <Image
-                    src="/A2.png" // Ton image de fond
-                    alt="Pharmacie"
-                    fill
-                    priority
-                    className="object-cover"
-                />
-
-                
-                <div className="absolute inset-0  bg-opacity-100" />
-
-                
-                <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white px-4">
-                    {/* Scroll Button 
-                    <motion.a
-                        href="#services"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 1, duration: 1 }}
-                        className="mt-10 text-green-400 hover:text-green-500 text-4xl animate-bounce"
-                    >
-                        ↓
-                    </motion.a>
-                </div>
-            </div>
-             Section Services */}
-
+        <Layout_livreur>
             <section id="services" className="py-20 px-6 bg-gray-100">
                 <motion.h2
                     initial={{ opacity: 0, y: 20 }}
@@ -137,6 +108,6 @@ export default function Accueil() {
                     </Link>
                 </motion.div>
             </section>
-        </Layout>
+        </Layout_livreur>
     );
 }
