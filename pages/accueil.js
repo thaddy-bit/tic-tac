@@ -103,7 +103,7 @@ export default function Accueil() {
                     viewport={{ once: true }}
                     transition={{ delay: 0.3, duration: 0.6 }}
                 >
-                    <Link href="#" className="bg-green-600 text-white font-bold py-3 px-8 rounded-full hover:bg-green-800 transition text-lg">
+                    <Link href="/about" className="bg-green-600 text-white font-bold py-3 px-8 rounded-full hover:bg-green-800 transition text-lg">
                         Suivez nous
                     </Link>
                 </motion.div>

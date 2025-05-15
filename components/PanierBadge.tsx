@@ -41,8 +41,8 @@ export default function PanierBadge() {
     <Link href="#" onClick={() => handleProtectedLinkClick("/panier")} className="relative inline-block hover:text-white hover:bg-green-500 p-1.5 transition duration-400 rounded-lg">
       <ShoppingCart size={24} />
       {count > 0 && (
-        <span className="absolute -top-2 -right-2 bg-white text-white text-xs px-1.5 py-0.5 rounded-full">
-          {/*count*/}
+        <span className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-1.5 py-0.5 rounded-full">
+          {count}
         </span>
       )}
     </Link>
