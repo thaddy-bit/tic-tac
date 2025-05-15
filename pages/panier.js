@@ -90,7 +90,7 @@ export default function PanierPage() {
       // En-tête
       doc.setFontSize(22);
       doc.setTextColor(56, 161, 105);
-      doc.text("RÉCAPITULATIF DE VOTRE PANIER", 105, 20, { align: "center" });
+      doc.text("VOTRE PANIER", 105, 20, { align: "center" });
   
       doc.setFontSize(12);
       doc.setTextColor(102, 102, 102);
@@ -102,19 +102,19 @@ export default function PanierPage() {
         nom: item.Nom,
         description: item.description || '',
         pharmacie: item.pharmacie_nom,
-        prix: `${item.prixVente} F`,
+        prix: `${item.prixVente} FCFA`,
         quantite: item.quantite,
-        total: `${(item.quantite * item.prixVente)} F`
+        total: `${(item.quantite * item.prixVente)} FCFA`
       }));
   
       // Tableau principal
       autoTable(doc, {
         head: [
           [
-            { content: "Produit", styles: { fillColor: [56, 161, 105], textColor: 255, fontStyle: 'bold' } },
+            { content: "Designation", styles: { fillColor: [56, 161, 105], textColor: 255, fontStyle: 'bold' } },
             { content: "Pharmacie", styles: { fillColor: [56, 161, 105], textColor: 255, fontStyle: 'bold' } },
-            { content: "Prix unitaire", styles: { fillColor: [56, 161, 105], textColor: 255, fontStyle: 'bold' } },
-            { content: "Quantité", styles: { fillColor: [56, 161, 105], textColor: 255, fontStyle: 'bold' } },
+            { content: "P.U", styles: { fillColor: [56, 161, 105], textColor: 255, fontStyle: 'bold' } },
+            { content: "Qté", styles: { fillColor: [56, 161, 105], textColor: 255, fontStyle: 'bold' } },
             { content: "Total", styles: { fillColor: [56, 161, 105], textColor: 255, fontStyle: 'bold' } },
           ],
         ],
@@ -129,14 +129,14 @@ export default function PanierPage() {
         theme: "grid",
         headStyles: { halign: "center" },
         columnStyles: {
-          0: { cellWidth: 50 },
-          1: { cellWidth: 35 },
-          2: { cellWidth: 30, halign: "right" },
+          0: { cellWidth: 60 },
+          1: { cellWidth: 40 },
+          2: { cellWidth: 30, halign: "center" },
           3: { cellWidth: 20, halign: "center" },
-          4: { cellWidth: 30, halign: "right" },
+          4: { cellWidth: 30, halign: "center" },
         },
-        styles: { 
-          fontSize: 10, 
+        styles: {
+          fontSize: 10,
           cellPadding: 4,
           lineColor: [234, 236, 238],
           lineWidth: 0.5
@@ -167,16 +167,8 @@ export default function PanierPage() {
       autoTable(doc, {
         body: [
           [
-            { content: "SOUS-TOTAL", styles: { fontStyle: "bold", halign: "right" } },
-            { content: `${sousTotal} F`, styles: { fontStyle: "bold", halign: "right" } },
-          ],
-          [
-            { content: "Livraison", styles: { halign: "right" } },
-            { content: livraison === 0 ? "À calculer" : `${livraison} F`, styles: { halign: "right" } },
-          ],
-          [
-            { content: "TOTAL", styles: { fontStyle: "bold", halign: "right" } },
-            { content: `${total} F`, styles: { fontStyle: "bold", halign: "right", textColor: [56, 161, 105] } },
+            { content: "TOTAL", styles: { fontStyle: "bold", halign: "left" } },
+            { content: `${total} FCFA`, styles: { fontStyle: "bold", halign: "right", textColor: [56, 161, 105] } },
           ],
         ],
         startY: doc.lastAutoTable.finalY + 10,
@@ -186,7 +178,7 @@ export default function PanierPage() {
         },
         styles: { 
           fontSize: 11, 
-          cellPadding: 5,
+          cellPadding: 1,
           lineColor: [56, 161, 105],
           lineWidth: 0.5
         },
@@ -195,8 +187,8 @@ export default function PanierPage() {
       // Pied de page
       doc.setFontSize(12);
       doc.setTextColor(102, 102, 102);
-      doc.text("Merci pour votre confiance ! Votre commande sera traitée dans les plus brefs délais.", 105, doc.lastAutoTable.finalY + 20, { align: "center" });
-      doc.text("Service client : info@tictac-cg.com | +242 06 620 86 62", 105, doc.lastAutoTable.finalY + 26, { align: "center" });
+      doc.text("Merci pour votre confiance !", 105, doc.lastAutoTable.finalY + 20, { align: "center" });
+      doc.text("Service client : info@tictac-cg.com | +242 06 724 61 10", 105, doc.lastAutoTable.finalY + 26, { align: "center" });
   
       doc.save(`panier-${new Date().toISOString().slice(0, 10)}.pdf`);
     } catch (error) {
