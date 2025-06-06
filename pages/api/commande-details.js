@@ -2,27 +2,36 @@ import { pool } from '@/lib/db';
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
-    return res.status(405).json({ message: 'Method not allowed' });
+    return res.status(405).json({ message: 'Méthode non autorisée' });
   }
 
   const { commande_id } = req.query;
 
   if (!commande_id) {
-    return res.status(400).json({ message: 'Commande ID is required' });
+    return res.status(400).json({ message: 'commande_id est requis' });
   }
 
   try {
-    const [results] = await pool.query(
-      `SELECT dc.*, p.Nom as produit_nom 
-       FROM commande_details dc
-       JOIN produits p ON dc.produit_id = p.id
-       WHERE dc.commande_id = ?`,
-      [commande_id]
-    );
+    const [rows] = await pool.query(
+  `SELECT 
+     cd.id, 
+     cd.commande_id, 
+     cd.produit_id, 
+     p.nom AS produit_nom,         -- 🔥 Nom du produit
+     p.prixVente AS prix_vente,
+     cd.quantite, 
+     cd.prix,
+     cd.pharmacie_nom
+   FROM commande_details cd
+   JOIN medicaments p ON cd.produit_id = p.id   -- 🔗 Jointure sur la table produits
+   WHERE cd.commande_id = ?`,
+  [commande_id]
+);
 
-    res.status(200).json(results);
+
+    return res.status(200).json(rows);
   } catch (error) {
-    console.error('Error fetching command details:', error);
-    res.status(500).json({ message: 'Error fetching command details' });
+    console.error('Erreur chargement commande_details :', error);
+    return res.status(500).json({ message: 'Erreur serveur' });
   }
 }

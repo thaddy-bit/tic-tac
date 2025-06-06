@@ -35,7 +35,7 @@ export default function Login() {
             router.push("/dashboard");
           } else {
             if(data.role === "livreur") {
-              router.push("/menu_livreur");
+              router.push("/commande_livreur");
             } else {
               router.push("/"); // pas de page
             }

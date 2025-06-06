@@ -54,11 +54,15 @@ export default function Navbar() {
   }, []);
 
   return (
-    <header className="sticky top-0 z-50 bg-white/70 backdrop-blur-md shadow-md">
+    <header className="lg:sticky top-0 z-50 bg-white/70 backdrop-blur-md shadow-md">
       <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
         {/* Logo */}
         <Link href="/accueil" className="text-2xl font-bold text-green-600">
           <Image src="/LogoVert.png" width={150} height={80} alt="Livraison" />
+          <div className="flex">
+          <p className="text-sm font-bold text-black pr-2">in line : </p>
+          <p className="text-sm font-bold text-red-600">{ }</p>
+          </div>
         </Link>
 
         {/* Desktop Navigation */}

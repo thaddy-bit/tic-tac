@@ -63,10 +63,6 @@ export default function Master_livreur() {
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-8">
           <nav className="flex gap-8 text-lg">
-            <Link href="/menu_livreur" className="hover:text-white hover:bg-green-500 px-3 py-2 rounded-lg transition duration-300 ease-in-out">
-              Accueil
-            </Link>
-
             <Link href="/commande_livreur" className="hover:text-white hover:bg-green-500 px-3 py-2 rounded-lg transition duration-300 ease-in-out">
             Commandes en attentes
             </Link>
@@ -129,10 +125,6 @@ export default function Master_livreur() {
             transition={{ duration: 0.3, ease: "easeInOut" }}
             className="md:hidden bg-white shadow-inner overflow-hidden flex flex-col items-center gap-4 py-4"
           >
-            <Link href="/menu_livreur" onClick={() => setIsOpen(false)} className="text-lg hover:text-green-500 transition">
-              Accueil
-            </Link>
-
             <Link href="/commande_livreur" onClick={() => setIsOpen(false)} className="text-lg hover:text-green-500 transition">
             Commandes en attentes
             </Link>

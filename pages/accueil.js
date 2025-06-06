@@ -32,6 +32,14 @@ export default function Accueil() {
 
     return (
         <Layout>
+            <section className="w-full sm:px-0 py-0">
+                <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+                <div className="h-96 md:h-[700px]">
+                    <Image src="/Accueil_ok.jpg" priority alt="Hero Image 1" width={3000} height={1000} className="w-full h-full object-cover" unoptimized />
+                </div>
+                
+                </div>
+            </section>
             <section id="services" className="py-20 px-6 bg-gray-100">
                 <motion.h2
                     initial={{ opacity: 0, y: 20 }}

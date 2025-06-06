@@ -53,7 +53,7 @@ export default function Journal() {
           const data = await commandesRes.json();
           setCommandes(data);
         } else {
-          throw new Error('Erreur lors du chargement des commandes');
+          // throw new Error('Erreur lors du chargement des commandes');
         }
       } catch (error) {
         console.error('Erreur:', error);
@@ -105,9 +105,9 @@ export default function Journal() {
             { content: "N° Commande", styles: { fillColor: [16, 185, 129], textColor: 255 } },
             { content: "Date", styles: { fillColor: [16, 185, 129], textColor: 255 } },
             { content: "Client", styles: { fillColor: [16, 185, 129], textColor: 255 } },
-            { content: "Montant HT", styles: { fillColor: [16, 185, 129], textColor: 255 } },
-            { content: "Taxe", styles: { fillColor: [16, 185, 129], textColor: 255 } },
-            { content: "Montant TTC", styles: { fillColor: [16, 185, 129], textColor: 255 } },
+            { content: "Montant Médicaments", styles: { fillColor: [16, 185, 129], textColor: 255 } },
+            { content: "Livraison", styles: { fillColor: [16, 185, 129], textColor: 255 } },
+            { content: "Montant Total", styles: { fillColor: [16, 185, 129], textColor: 255 } },
             { content: "Statut", styles: { fillColor: [16, 185, 129], textColor: 255 } },
           ],
         ],
@@ -115,21 +115,21 @@ export default function Journal() {
           commande.id,
           new Date(commande.date_commande).toLocaleDateString('fr-FR'),
           commande.client_nom,
-          `${(commande.total - commande.livraison).toLocaleString('fr-FR')} FCFA`,
-          `${commande.livraison.toLocaleString('fr-FR')} FCFA`,
-          `${commande.total.toLocaleString('fr-FR')} FCFA`,
+          `${(commande.total - commande.livraison)} FCFA`,
+          `${commande.livraison} FCFA`,
+          `${commande.total} FCFA`,
           commande.statut.toUpperCase(),
         ]),
-        startY: 40,
+        startY: 50,
         theme: "grid",
         headStyles: { halign: "center" },
         columnStyles: {
-          0: { cellWidth: 20, halign: "center" },
+          0: { cellWidth: 30, halign: "center" },
           1: { cellWidth: 25, halign: "center" },
           2: { cellWidth: 35 },
-          3: { cellWidth: 25, halign: "right" },
-          4: { cellWidth: 20, halign: "right" },
-          5: { cellWidth: 25, halign: "right" },
+          3: { cellWidth: 30, halign: "center" },
+          4: { cellWidth: 25, halign: "center" },
+          5: { cellWidth: 25, halign: "center" },
           6: { cellWidth: 25, halign: "center" },
         },
         styles: { fontSize: 10, cellPadding: 3 },
@@ -153,22 +153,22 @@ export default function Journal() {
       autoTable(doc, {
         body: [
           [
-            { content: "TOTAL GENERAL", styles: { fontStyle: "bold", halign: "right" } },
-            { content: `${htTotal.toLocaleString('fr-FR')} FCFA`, styles: { fontStyle: "bold", halign: "right" } },
-            { content: `${taxeTotal.toLocaleString('fr-FR')} FCFA`, styles: { fontStyle: "bold", halign: "right" } },
-            { content: `${montantTotal.toLocaleString('fr-FR')} FCFA`, styles: { fontStyle: "bold", halign: "right", textColor: [16, 185, 129] } },
+            { content: "TOTAL GENERAL", styles: { fontStyle: "bold", halign: "left" } },
+            { content: `${htTotal} FCFA`, styles: { fontStyle: "bold", halign: "center" } },
+            { content: `${taxeTotal} FCFA`, styles: { fontStyle: "bold", halign: "center" } },
+            { content: `${montantTotal} FCFA`, styles: { fontStyle: "bold", halign: "center", textColor: [16, 185, 129] } },
             { content: "", styles: { fillColor: [255, 255, 255] } },
           ],
         ],
         startY: doc.lastAutoTable.finalY + 10,
         columnStyles: {
-          0: { cellWidth: 60 },
-          1: { cellWidth: 25 },
-          2: { cellWidth: 20 },
-          3: { cellWidth: 25 },
-          4: { cellWidth: 25 },
+          0: { cellWidth: 70 },
+          1: { cellWidth: 45 },
+          2: { cellWidth: 45 },
+          3: { cellWidth: 42 },
+          4: { cellWidth: 42 },
         },
-        styles: { fontSize: 11, cellPadding: 5 },
+        styles: { fontSize: 11, cellPadding: 2 },
       });
 
       // Signature et cachet
@@ -180,7 +180,7 @@ export default function Journal() {
       doc.line(140, doc.lastAutoTable.finalY + 25, 190, doc.lastAutoTable.finalY + 25);
 
       // Date de génération
-      doc.text(`Document généré le ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')}`, 14, doc.internal.pageSize.height - 10);
+      doc.text(`généré le ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')}`, 14, doc.internal.pageSize.height - 10);
 
       doc.save(`journal_taxable_${dateDebut}_${dateFin}.pdf`);
     } catch (error) {
@@ -276,7 +276,7 @@ export default function Journal() {
             className="bg-white rounded-xl shadow-sm border border-gray-100 p-6"
           >
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-medium text-gray-500">Montant HT</h3>
+              <h3 className="text-sm font-medium text-gray-500">Médicaments</h3>
               <div className="bg-green-100 p-2 rounded-lg">
                 <FileText className="text-green-600" size={20} />
               </div>
@@ -293,7 +293,7 @@ export default function Journal() {
             className="bg-white rounded-xl shadow-sm border border-gray-100 p-6"
           >
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-medium text-gray-500">Total Taxe</h3>
+              <h3 className="text-sm font-medium text-gray-500">Livraisons</h3>
               <div className="bg-blue-100 p-2 rounded-lg">
                 <FileText className="text-blue-600" size={20} />
               </div>
@@ -310,7 +310,7 @@ export default function Journal() {
             className="bg-white rounded-xl shadow-sm border border-gray-100 p-6"
           >
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-medium text-gray-500">Montant TTC</h3>
+              <h3 className="text-sm font-medium text-gray-500">Médicaments + Livraisons</h3>
               <div className="bg-purple-100 p-2 rounded-lg">
                 <FileText className="text-purple-600" size={20} />
               </div>
@@ -387,7 +387,7 @@ export default function Journal() {
                     
                     <div className="flex flex-col items-end">
                       <div className="text-right">
-                        <p className="text-sm text-gray-500">Total TTC</p>
+                        <p className="text-sm text-gray-500">Montant Total</p>
                         <p className="text-xl font-semibold text-green-600">
                           {commande.total.toLocaleString("fr-FR")} FCFA
                         </p>
@@ -397,13 +397,13 @@ export default function Journal() {
                   
                   <div className="mt-4 pt-4 border-t border-gray-100 grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                      <p className="text-sm text-gray-500">Montant HT</p>
+                      <p className="text-sm text-gray-500">Montant Médicaments</p>
                       <p className="font-medium">
                         {(commande.total - commande.livraison).toLocaleString("fr-FR")} FCFA
                       </p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500">Taxe</p>
+                      <p className="text-sm text-gray-500">Livraison</p>
                       <p className="font-medium text-blue-600">
                         {commande.livraison.toLocaleString("fr-FR")} FCFA
                       </p>
@@ -411,7 +411,7 @@ export default function Journal() {
                     <div>
                       <p className="text-sm text-gray-500">Mode de paiement</p>
                       <p className="font-medium">
-                        {commande.mode_paiement || "Non spécifié"}
+                        {commande.mode_paiement || "Par code"}
                       </p>
                     </div>
                   </div>
