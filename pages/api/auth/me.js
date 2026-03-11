@@ -1,6 +1,6 @@
 import { parse } from "cookie";
 import jwt from "jsonwebtoken";
-import { pool } from "@/lib/db";
+import { prisma } from "@/lib/prisma";
 
 export default async function handler(req, res) {
   try {
@@ -13,16 +13,18 @@ export default async function handler(req, res) {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    const [rows] = await pool.query("SELECT id, email, nom, prenom, agence_id FROM users WHERE id = ?", [decoded.id]);
+    const user = await prisma.user.findUnique({
+      where: { id: decoded.id },
+      select: { id: true, email: true, nom: true, prenom: true, agence_id: true },
+    });
 
-    if (rows.length === 0) {
+    if (!user) {
       return res.status(404).json({ message: "Utilisateur introuvable" });
     }
 
-    return res.status(200).json(rows[0]);
+    return res.status(200).json(user);
 
-  } catch (error) {
-    console.error(error);
+  } catch {
     return res.status(401).json({ message: "Token invalide ou expiré" });
   }
 }

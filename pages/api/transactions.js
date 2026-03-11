@@ -1,4 +1,4 @@
-import { pool } from '@/lib/db';
+import { prisma } from '@/lib/prisma';
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -7,35 +7,25 @@ export default async function handler(req, res) {
 
   const { date_debut, date_fin, agence_id } = req.query;
 
-  let conditions = [];
-  let params = [];
-
+  const where = {};
   if (date_debut && date_fin) {
-    conditions.push("date_transaction BETWEEN ? AND ?");
-    params.push(date_debut, date_fin);
+    where.date_transaction = {
+      gte: new Date(date_debut),
+      lte: new Date(date_fin),
+    };
   }
-
   if (agence_id) {
-    conditions.push("agence_id = ?");
-    params.push(agence_id);
+    where.agence_id = parseInt(agence_id, 10);
   }
-
-  const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : "";
 
   try {
-    const [rows] = await pool.query(
-      `SELECT *
-       FROM transactions
-       ${whereClause}
-       ORDER BY date_transaction DESC`,
-      params
-    );
+    const rows = await prisma.transaction.findMany({
+      where,
+      orderBy: { date_transaction: 'desc' },
+    });
 
-    // Séparer les transactions
-    const commandes = rows.filter(tx => tx.type_transaction === 'commande');
-    const consultations = rows.filter(tx => tx.type_transaction === 'consultation');
-
-    // Montants totaux
+    const commandes = rows.filter((tx) => tx.type_transaction === 'commande');
+    const consultations = rows.filter((tx) => tx.type_transaction === 'consultation');
     const totalCommande = commandes.reduce((sum, tx) => sum + tx.montant, 0);
     const totalConsultation = consultations.reduce((sum, tx) => sum + tx.montant, 0);
 
@@ -43,7 +33,7 @@ export default async function handler(req, res) {
       commandes,
       consultations,
       totalCommande,
-      totalConsultation
+      totalConsultation,
     });
   } catch (error) {
     console.error("Erreur lors de la récupération des transactions :", error);

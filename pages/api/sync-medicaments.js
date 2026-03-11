@@ -1,4 +1,4 @@
-import { pool } from '@/lib/db';
+import { prisma } from '@/lib/prisma';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -23,55 +23,38 @@ export default async function handler(req, res) {
         continue; // Skip les médicaments sans Reference
       }
 
-      const [existing] = await pool.query(
-        'SELECT * FROM medicaments WHERE Reference = ? AND pharmacie_id = ?',
-        [m.Reference, pharmacie_id]
-      );
+      const existing = await prisma.medicament.findFirst({
+        where: { Reference: m.Reference, pharmacie_id: parseInt(pharmacie_id, 10) },
+      });
 
-      if (existing.length > 0) {
-        // Mise à jour si nécessaire
-        const med = existing[0];
-        if (med.quantite !== parseInt(m.quantite) || med.prixVente !== parseFloat(m.prixVente)) {
-          await pool.query(
-            `UPDATE medicaments SET
-              Nom = ?,
-              presentation = ?,
-              description = ?,
-              prixAchat = ?,
-              prixVente = ?,
-              quantite = ?
-             WHERE id = ?`,
-            [
-              m.Nom,
-              m.presentation || '',
-              m.description || '',
-              parseFloat(m.prixAchat),
-              parseFloat(m.prixVente),
-              parseInt(m.quantite),
-              med.id
-            ]
-          );
+      if (existing) {
+        if (existing.quantite !== parseInt(m.quantite, 10) || existing.prixVente !== parseFloat(m.prixVente)) {
+          await prisma.medicament.update({
+            where: { id: existing.id },
+            data: {
+              Nom: m.Nom,
+              presentation: m.presentation || '',
+              description: m.description || '',
+              prixAchat: parseFloat(m.prixAchat),
+              prixVente: parseFloat(m.prixVente),
+              quantite: parseInt(m.quantite, 10),
+            },
+          });
         }
-        // on fais rien si le médicament n'a pas changé
       } else {
-        // Insertion
-        await pool.query(
-          `INSERT INTO medicaments (
-            Reference, Nom, presentation, description,
-            prixAchat, prixVente, quantite, pharmacie_id, pharmacie_nom
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-          [
-            m.Reference,
-            m.Nom,
-            m.presentation || '',
-            m.description || '',
-            parseFloat(m.prixAchat),
-            parseFloat(m.prixVente),
-            parseInt(m.quantite),
-            pharmacie_id, 
-            m.pharmacie_nom
-          ]
-        );
+        await prisma.medicament.create({
+          data: {
+            Reference: m.Reference,
+            Nom: m.Nom,
+            presentation: m.presentation || '',
+            description: m.description || '',
+            prixAchat: parseFloat(m.prixAchat),
+            prixVente: parseFloat(m.prixVente),
+            quantite: parseInt(m.quantite, 10),
+            pharmacie_id: parseInt(pharmacie_id, 10),
+            pharmacie_nom: m.pharmacie_nom || '',
+          },
+        });
       }
     }
 

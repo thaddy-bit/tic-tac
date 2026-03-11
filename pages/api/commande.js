@@ -1,7 +1,7 @@
-import { pool } from '@/lib/db';
+import { prisma } from '@/lib/prisma';
 import twilio from 'twilio';
 
-const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
@@ -22,54 +22,53 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Données invalides.' });
   }
 
-  const connection = await pool.getConnection();
-
   try {
-    // 🔎 Vérifier les stocks avant de commencer la transaction
     for (const item of panier) {
-      const [rows] = await connection.query(
-        `SELECT quantite FROM medicaments WHERE id = ?`,
-        [item.id]
-      );
-
-      if (rows.length === 0) {
+      const med = await prisma.medicament.findUnique({
+        where: { id: item.id },
+        select: { quantite: true, Nom: true },
+      });
+      if (!med) {
         return res.status(400).json({ error: `Médicament ID ${item.id} introuvable.` });
       }
-
-      const stockDisponible = rows[0].quantite;
-
-      if (stockDisponible < item.quantite) {
+      if (med.quantite < item.quantite) {
         return res.status(400).json({
-          error: `Stock insuffisant pour ${item.Nom}. Stock : ${stockDisponible}, demandé : ${item.quantite}`
+          error: `Stock insuffisant pour ${item.Nom ?? med.Nom}. Stock : ${med.quantite}, demandé : ${item.quantite}`,
         });
       }
     }
 
-    await connection.beginTransaction();
+    await prisma.$transaction(async (tx) => {
+      const commande = await tx.commande.create({
+        data: {
+          client_nom: nomPatient,
+          telephone: String(telephone),
+          user_id: parseInt(userId, 10),
+          chauffeur_id: parseInt(chauffeurId, 10),
+          automobile_id: parseInt(automobileId, 10),
+          total: parseInt(total, 10),
+          livraison: parseInt(livraison, 10),
+          statut: 'en_cours',
+          adresse: adresse || '',
+        },
+      });
 
-    // 📝 Insertion dans la table commandes
-    const [commandeResult] = await connection.query(
-      `INSERT INTO commandes (client_nom, telephone, user_id, chauffeur_id, automobile_id, total, livraison, statut, adresse)
-       VALUES (?, ?, ?, ?, ?, ?, ?, 'en cours', ?)`,
-      [nomPatient, telephone, userId, chauffeurId, automobileId, total, livraison, adresse]
-    );
-    const commandeId = commandeResult.insertId;
-
-    // 🧾 Insertion des détails et décrémentation du stock
-    for (const item of panier) {
-      await connection.query(
-        `INSERT INTO commande_details (commande_id, produit_id, quantite, prix, pharmacie_nom)
-         VALUES (?, ?, ?, ?, ?)`,
-        [commandeId, item.id, item.quantite, item.prix, item.pharmacie_nom]
-      );
-
-      await connection.query(
-        `UPDATE medicaments SET quantite = quantite - ? WHERE id = ?`,
-        [item.quantite, item.id]
-      );
-    }
-
-    await connection.commit();
+      for (const item of panier) {
+        await tx.commandeDetail.create({
+          data: {
+            commande_id: commande.id,
+            produit_id: item.id,
+            quantite: item.quantite,
+            prix: item.prix,
+            pharmacie_nom: item.pharmacie_nom ?? '',
+          },
+        });
+        await tx.medicament.update({
+          where: { id: item.id },
+          data: { quantite: { decrement: item.quantite } },
+        });
+      }
+    });
 
     // 📩 Envoi du récapitulatif WhatsApp
     let messageBody = `🧾 Nouvelle commande enregistrée\n`;
@@ -85,7 +84,7 @@ export default async function handler(req, res) {
     messageBody += `🚚 Livraison : ${livraison} FCFA\n`;
     messageBody += `💰 Total : ${total} FCFA`;
 
-    await client.messages.create({
+    await twilioClient.messages.create({
       from: process.env.TWILIO_WHATSAPP_FROM,
       to: process.env.DESTINATAIRE_WHATSAPP,
       body: messageBody,
@@ -94,9 +93,6 @@ export default async function handler(req, res) {
     res.status(200).json({ message: 'Commande enregistrée et stock mis à jour.' });
   } catch (error) {
     console.error('Erreur commande :', error);
-    await connection.rollback();
     res.status(500).json({ error: 'Erreur lors de l’enregistrement de la commande.' });
-  } finally {
-    connection.release();
   }
 }

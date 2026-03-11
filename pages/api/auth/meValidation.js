@@ -15,8 +15,7 @@ export default async function handler(req, res) {
     // Retourne les infos stockées dans le token (par ex. user_id, code, montant, agence_id)
     return res.status(200).json({ valid: true, data: decoded });
 
-  } catch (error) {
-    console.error("Erreur de validation de session code:", error.message);
+  } catch {
     return res.status(401).json({ valid: false, message: "Session expirée ou invalide" });
   }
 }

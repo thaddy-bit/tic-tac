@@ -1,4 +1,4 @@
-import { pool } from '@/lib/db';
+import { prisma } from '@/lib/prisma';
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
@@ -23,32 +23,31 @@ export default async function handler(req, res) {
         return res.status(400).json({ message: 'Aucun produit fourni pour la commande' });
       }
 
-      // Insertion de la commande principale
-      const [result] = await pool.query(
-        'INSERT INTO commande (client_nom, user_id, chauffeur_id, automobile_id, total, livraison, statut, date_commande) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())',
-        [client_nom, user_id, chauffeur_id || null, automobile_id || null, total || 0, livraison || 0, statut || 'en_attente']
-      );
+      const commande = await prisma.commande.create({
+        data: {
+          client_nom,
+          telephone: '',
+          user_id: parseInt(user_id, 10),
+          chauffeur_id: chauffeur_id ? parseInt(chauffeur_id, 10) : null,
+          automobile_id: automobile_id ? parseInt(automobile_id, 10) : null,
+          total: total || 0,
+          livraison: livraison || 0,
+          statut: (statut === 'en_attente' ? 'en_cours' : statut) || 'en_cours',
+          adresse: '',
+        },
+      });
 
-      const commandeId = result.insertId;
-
-      // Insertion des détails de la commande
       for (const item of produits) {
         const { produit_id, quantite, prix, pharmacie_nom } = item;
-
         if (!produit_id || !quantite || !prix || !pharmacie_nom) {
           return res.status(400).json({ message: 'Chaque produit doit contenir produit_id, quantite, prix, et pharmacie_nom' });
         }
-
-        await pool.query(
-          'INSERT INTO commande_details (commande_id, produit_id, quantite, prix, pharmacie_nom) VALUES (?, ?, ?, ?, ?)',
-          [commandeId, produit_id, quantite, prix, pharmacie_nom]
-        );
+        await prisma.commandeDetail.create({
+          data: { commande_id: commande.id, produit_id, quantite, prix, pharmacie_nom },
+        });
       }
 
-      res.status(201).json({
-        id: commandeId,
-        message: 'Commande et détails enregistrés avec succès'
-      });
+      res.status(201).json({ id: commande.id, message: 'Commande et détails enregistrés avec succès' });
 
     } catch (error) {
       console.error('Erreur lors de la création de la commande :', error);
@@ -59,18 +58,23 @@ export default async function handler(req, res) {
   // Récupération des commandes
   else if (req.method === 'GET') {
     try {
-      const [rows] = await pool.query(`
-        SELECT c.*, 
-               u.nom as user_nom, u.prenom as user_prenom,
-               ch.nom as chauffeur_nom, ch.prenom as chauffeur_prenom,
-               a.nom as auto_nom, a.matriculation
-        FROM commande c
-        LEFT JOIN users u ON c.user_id = u.id
-        LEFT JOIN chauffeur ch ON c.chauffeur_id = ch.id
-        LEFT JOIN automobile a ON c.automobile_id = a.id
-        ORDER BY c.date_commande DESC
-      `);
-      res.status(200).json(rows);
+      const rows = await prisma.commande.findMany({
+        include: {
+          user: { select: { nom: true, prenom: true } },
+          automobile: { select: { nom: true, matriculation: true } },
+        },
+        orderBy: { date_commande: 'desc' },
+      });
+      const formatted = rows.map((c) => ({
+        ...c,
+        user_nom: c.user?.nom,
+        user_prenom: c.user?.prenom,
+        chauffeur_nom: null,
+        chauffeur_prenom: null,
+        auto_nom: c.automobile?.nom,
+        matriculation: c.automobile?.matriculation,
+      }));
+      res.status(200).json(formatted);
     } catch (error) {
       console.error('Erreur lors de la récupération des commandes :', error);
       res.status(500).json({ message: 'Erreur serveur lors de la récupération des commandes' });
@@ -85,15 +89,15 @@ export default async function handler(req, res) {
         return res.status(400).json({ message: 'commande_id et chauffeur_id sont requis' });
       }
 
-      // Vérifie que la commande appartient bien au livreur
-      const [check] = await pool.query('SELECT * FROM commande WHERE id = ? AND chauffeur_id = ?', [commande_id, chauffeur_id]);
+      const check = await prisma.commande.findFirst({
+        where: { id: parseInt(commande_id, 10), chauffeur_id: parseInt(chauffeur_id, 10) },
+      });
+      if (!check) return res.status(403).json({ message: 'Accès interdit ou commande non trouvée' });
 
-      if (check.length === 0) {
-        return res.status(403).json({ message: 'Accès interdit ou commande non trouvée' });
-      }
-
-      // Mise à jour du statut
-      await pool.query('UPDATE commande SET statut = "livrée" WHERE id = ?', [commande_id]);
+      await prisma.commande.update({
+        where: { id: parseInt(commande_id, 10) },
+        data: { statut: 'livre' },
+      });
 
       res.status(200).json({ message: 'Commande livrée avec succès' });
 

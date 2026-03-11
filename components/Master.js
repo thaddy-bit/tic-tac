@@ -12,6 +12,7 @@ import {
   Car,
   BookOpen,
   DollarSign,
+  CreditCard,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -80,6 +81,15 @@ export default function MenuPage({ children }) {
         { href: "/comptabilite/transaction", label: "Journal transactions" },
       ],
     },
+    {
+      href: "/modes-paiement",
+      icon: CreditCard,
+      label: "Modes de paiement",
+      subItems: [
+        { href: "/modes-paiement/list", label: "Liste" },
+        { href: "/modes-paiement/add", label: "Ajouter un mode" },
+      ],
+    },
   ];
 
   useEffect(() => {
@@ -116,6 +126,7 @@ export default function MenuPage({ children }) {
       router.events.off("routeChangeComplete", handleRouteChange);
       window.removeEventListener("resize", handleResize);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- menuItems constant, router suffit
   }, [router]);
 
   useEffect(() => {

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Menu, X, Home, User, Settings, LogOut, ChevronDown, ChevronUp, Globe2, Building2 } from "lucide-react";
+import { Menu, X, Home, User, Settings, LogOut, ChevronDown, ChevronUp, Globe2, Building2, CreditCard } from "lucide-react";
 import Link from "next/link";
 import Image from 'next/image';
 
@@ -9,6 +9,7 @@ export default function MenuPage() {
   const [openPays, setOpenPays] = useState(false);
   const [openVille, setOpenVille] = useState(false);
   const [openAgence, setOpenAgence] = useState(false);
+  const [openModesPaiement, setOpenModesPaiement] = useState(false);
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -92,6 +93,23 @@ export default function MenuPage() {
               <div className="ml-6 mt-1 space-y-1 text-white text-sm">
                 <Link href="/agences/add" className="block hover:underline">Ajouter</Link>
                 <Link href="/agences/list" className="block hover:underline">Liste</Link>
+              </div>
+            )}
+          </div>
+
+          {/* MODES DE PAIEMENT */}
+          <div>
+            <button
+              onClick={() => setOpenModesPaiement(!openModesPaiement)}
+              className="flex justify-between items-center w-full p-3 text-white font-semibold hover:bg-green-600 rounded-lg"
+            >
+              <span className="flex items-center gap-2"><CreditCard size={20} /> Modes de paiement</span>
+              {openModesPaiement ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+            </button>
+            {openModesPaiement && (
+              <div className="ml-6 mt-1 space-y-1 text-white text-sm">
+                <Link href="/modes-paiement/add" className="block hover:underline">Ajouter</Link>
+                <Link href="/modes-paiement/list" className="block hover:underline">Liste</Link>
               </div>
             )}
           </div>

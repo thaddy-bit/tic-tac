@@ -39,6 +39,7 @@ export default function CommandeLivreur({ chauffeurId }) {
 
   useEffect(() => {
     fetchCommandes();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- chauffeurId suffit, fetchCommandes stable
   }, [chauffeurId]);
 
   return (

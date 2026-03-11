@@ -17,6 +17,7 @@ export default function TransactionsPage() {
   useEffect(() => {
     fetchAgences();
     fetchTransactions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- exécution volontaire au montage uniquement
   }, []);
 
   const fetchAgences = async () => {

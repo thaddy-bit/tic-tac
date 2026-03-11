@@ -1,23 +1,31 @@
-// pages/api/commandes/pdf.ts
-import { pool } from '@/lib/db';
+import { prisma } from '@/lib/prisma';
 
 export default async function handler(req, res) {
-  
   const { date_debut, date_fin, user_id } = req.query;
 
   if (!date_debut || !date_fin) {
-    return res.status(400).json({ message: "Dates manquantes." });
+    return res.status(400).json({ message: 'Dates manquantes.' });
   }
 
   try {
-    const [rows] = await pool.query(
-      "SELECT * FROM commandes WHERE user_id = ? AND DATE(date_commande) BETWEEN ? AND ? ORDER BY date_commande DESC",
-      [user_id, date_debut, date_fin]
-    );
+    const where = {
+      date_commande: {
+        gte: new Date(String(date_debut)),
+        lte: new Date(String(date_fin)),
+      },
+    };
+    if (user_id) {
+      where.user_id = parseInt(String(user_id), 10);
+    }
+
+    const rows = await prisma.commande.findMany({
+      where,
+      orderBy: { date_commande: 'desc' },
+    });
 
     res.status(200).json(rows);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Erreur serveur." });
+    res.status(500).json({ message: 'Erreur serveur.' });
   }
 }

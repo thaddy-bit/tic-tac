@@ -43,20 +43,6 @@ export default function CommandePage() {
     fetchUser();
   }, [router]);
 
-  useEffect(() => {
-    const interval = setInterval(async () => {
-      try {
-        const res = await fetch('/api/auth/meValidation');
-        const data = await res.json();
-        if (!data.valid) {
-          router.push('/code-verification');
-        }
-      } catch (err) {
-        console.error("Erreur lors de la vérification du code :", err);
-      }
-    }, 30000);
-    return () => clearInterval(interval);
-  }, []);
 
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem('panier') || '[]');

@@ -19,6 +19,10 @@ export default function Produits() {
   const [user, setUser] = useState(null);
   const router = useRouter();
   const [loadingUser, setLoadingUser] = useState(true);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+  const [total, setTotal] = useState(0);
+  const limit = 20;
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -77,23 +81,48 @@ export default function Produits() {
       .catch(err => console.error('Erreur chargement pharmacies:', err));
   }, [villeId]);
 
-  const fetchProduits = async () => {
+  const fetchProduits = async (pageNum = 1) => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
       if (query) params.append('query', query);
       if (villeId) params.append('ville_id', villeId);
       if (pharmacieId) params.append('pharmacie_id', pharmacieId);
+      params.append('page', String(pageNum));
+      params.append('limit', String(limit));
 
       const res = await fetch(`/api/produits/search?${params.toString()}`);
       const data = await res.json();
-      setProduits(Array.isArray(data) ? data : []);
+
+      if (data.items) {
+        setProduits(data.items);
+        setTotalPages(data.totalPages ?? 0);
+        setTotal(data.total ?? 0);
+        setPage(data.page ?? 1);
+      } else {
+        setProduits(Array.isArray(data) ? data : []);
+        setTotalPages(0);
+        setTotal(0);
+      }
     } catch (err) {
       console.error('Erreur chargement produits:', err);
       setProduits([]);
+      setTotalPages(0);
+      setTotal(0);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSearch = () => {
+    setPage(1);
+    fetchProduits(1);
+  };
+
+  const handlePageChange = (newPage) => {
+    if (newPage < 1 || newPage > totalPages) return;
+    setPage(newPage);
+    fetchProduits(newPage);
   };
 
   if (loadingUser && !user) return <div className="text-center py-10">Chargement...</div>;
@@ -169,7 +198,7 @@ export default function Produits() {
                       />
                     </div>
                     <button
-                      onClick={fetchProduits}
+                      onClick={handleSearch}
                       className="bg-green-600 px-6 flex items-center justify-center text-white hover:bg-green-700 transition"
                     >
                       <Search size={20} />
@@ -287,6 +316,33 @@ export default function Produits() {
                   </div>
                   <h3 className="text-xl font-medium text-gray-700 mb-2">Aucun produit trouvé</h3>
                   <p className="text-gray-500">Essayez avec d,autres termes de recherche</p>
+                </div>
+              )}
+
+              {produits.length > 0 && totalPages > 1 && (
+                <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-gray-200 pt-6">
+                  <p className="text-gray-600 text-sm">
+                    Page {page} sur {totalPages} · {total} produit{total !== 1 ? 's' : ''} au total
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handlePageChange(page - 1)}
+                      disabled={page <= 1}
+                      className="px-4 py-2 rounded-lg font-medium bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                    >
+                      Précédent
+                    </button>
+                    <span className="px-3 py-2 text-gray-600 font-medium">
+                      {page} / {totalPages}
+                    </span>
+                    <button
+                      onClick={() => handlePageChange(page + 1)}
+                      disabled={page >= totalPages}
+                      className="px-4 py-2 rounded-lg font-medium bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                    >
+                      Suivant
+                    </button>
+                  </div>
                 </div>
               )}
             </div>

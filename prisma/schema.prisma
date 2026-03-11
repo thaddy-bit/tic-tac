@@ -1,0 +1,264 @@
+// Schéma Prisma dérivé de u729893412_tictac.sql
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// --- Enums ---
+enum AutomobileType {
+  moto
+  voiture
+}
+
+enum AutomobileEtat {
+  disponible
+  indisponible
+  en_maintenance
+}
+
+enum ChauffeurEtat {
+  actif
+  inactif
+}
+
+enum CodeValidationEtat {
+  utilise     @map("utilisé")
+  non_utilise @map("non utilisé")
+}
+
+enum CommandeStatut {
+  en_cours @map("en cours")
+  livre    @map("livre")
+  annule   @map("annule")
+}
+
+enum TransactionType {
+  consultation
+  commande
+}
+
+enum UserEtat {
+  actif
+  inactif
+}
+
+enum UserRole {
+  super
+  admin
+  simple
+  livreur
+}
+
+enum ModePaiementType {
+  code
+  mobile_money
+  autre
+}
+
+// --- Modèles ---
+model Pays {
+  id     Int    @id @default(autoincrement())
+  nom    String @db.VarChar(100)
+  villes Ville[]
+
+  @@map("pays")
+}
+
+model Ville {
+  id         Int         @id @default(autoincrement())
+  nom        String      @db.VarChar(100)
+  pays_id    Int
+  pays       Pays        @relation(fields: [pays_id], references: [id], onDelete: Cascade)
+  agences    Agence[]
+  pharmacies Pharmacie[]
+
+  @@map("villes")
+}
+
+model Agence {
+  id           Int           @id @default(autoincrement())
+  nom          String        @db.VarChar(100)
+  adresse      String?       @db.Text
+  ville_id     Int
+  ville        Ville         @relation(fields: [ville_id], references: [id], onDelete: Cascade)
+  users        User[]
+  transactions Transaction[]
+
+  @@map("agences")
+}
+
+model User {
+  id            Int          @id @default(autoincrement())
+  nom           String       @db.VarChar(50)
+  prenom        String       @db.VarChar(50)
+  telephone     String       @db.VarChar(20)
+  email         String       @db.VarChar(100)
+  password      String       @db.VarChar(255)
+  etat          UserEtat     @default(actif)
+  role          UserRole
+  agence_id     Int?
+  agence        Agence?      @relation(fields: [agence_id], references: [id], onDelete: SetNull)
+  commandes     Commande[]   @relation("ClientCommandes")
+  transactions  Transaction[]
+  codes_secours CodeSecours[]
+
+  @@map("users")
+}
+
+model Automobile {
+  id            Int             @id @default(autoincrement())
+  type          AutomobileType
+  nom           String          @db.VarChar(50)
+  matriculation String          @db.VarChar(20)
+  etat          AutomobileEtat? @default(disponible) @map("état")
+  commandes     Commande[]
+
+  @@map("automobile")
+}
+
+model Chauffeur {
+  id        Int            @id @default(autoincrement())
+  nom       String         @db.VarChar(50)
+  prenom    String         @db.VarChar(50)
+  telephone String         @db.VarChar(20)
+  etat      ChauffeurEtat?  @default(actif) @map("état")
+
+  @@map("chauffeur")
+}
+
+model CodeValidation {
+  id            Int                 @id @default(autoincrement())
+  code          String              @db.VarChar(6)
+  nom_pharmacie String              @db.VarChar(255)
+  montant       Int
+  etat          CodeValidationEtat?  @default(non_utilise)
+  nom_utilise   String?              @db.VarChar(255)
+
+  @@map("code_validation")
+}
+
+model CodeSecours {
+  id             Int          @id @default(autoincrement())
+  code           String       @db.VarChar(10)
+  user_id        Int
+  transaction_id Int
+  utilise        Boolean      @default(false)
+  created_at     DateTime     @default(now())
+  user           User         @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  transaction    Transaction  @relation(fields: [transaction_id], references: [id], onDelete: Cascade)
+
+  @@unique([code])
+  @@map("code_secours")
+}
+
+model Commande {
+  id            Int             @id @default(autoincrement())
+  client_nom    String?         @db.VarChar(100)
+  telephone     String          @db.VarChar(50)
+  user_id       Int
+  chauffeur_id  Int
+  automobile_id Int
+  total         Int?
+  livraison     Int?
+  statut        CommandeStatut?  @default(en_cours)
+  adresse       String          @db.VarChar(255)
+  date_commande DateTime?       @default(now())
+  user          User            @relation("ClientCommandes", fields: [user_id], references: [id])
+  automobile    Automobile      @relation(fields: [automobile_id], references: [id])
+  details       CommandeDetail[]
+
+  @@map("commandes")
+}
+
+model CommandeDetail {
+  id             Int       @id @default(autoincrement())
+  commande_id    Int?
+  produit_id     Int?
+  quantite       Int?
+  prix           Int?
+  pharmacie_nom  String?   @db.VarChar(100)
+  commande       Commande? @relation(fields: [commande_id], references: [id])
+
+  @@map("commande_details")
+}
+
+model Medicament {
+  id            Int     @id @default(autoincrement())
+  Reference     String? @db.VarChar(100)
+  Nom           String? @db.VarChar(255)
+  presentation  String? @db.VarChar(255)
+  description   String? @db.Text
+  prixAchat     Int?
+  prixVente     Int?
+  quantite      Int?
+  pharmacie_id  Int?
+  pharmacie_nom String  @db.VarChar(255)
+
+  @@map("medicaments")
+}
+
+model Pharmacie {
+  id       Int     @id @default(autoincrement())
+  nom      String? @db.VarChar(100)
+  ville_id Int?
+  ville    Ville?  @relation(fields: [ville_id], references: [id])
+
+  @@map("pharmacies")
+}
+
+model Produit {
+  id             Int    @id @default(autoincrement())
+  nom            String @db.VarChar(100)
+  description    String? @db.Text
+  prix           Int
+  quantite       Int
+  pharmacie_nom  String @db.VarChar(100)
+
+  @@map("produits")
+}
+
+model ModePaiement {
+  id            Int              @id @default(autoincrement())
+  nom           String           @db.VarChar(100)
+  code          String           @unique @db.VarChar(50)
+  type          ModePaiementType @default(autre)
+  actif         Boolean          @default(true)
+  ordre         Int              @default(0)
+  description   String?          @db.VarChar(500)
+  instructions  String?          @db.Text
+  logo_url      String?          @db.VarChar(500)
+  config_public  Json?            // URLs, env name, etc. Secrets dans .env
+  created_at    DateTime         @default(now())
+  updated_at    DateTime         @updatedAt
+
+  @@map("modes_paiement")
+}
+
+model PaiementCallbackLog {
+  id         Int      @id @default(autoincrement())
+  reference  String   @unique @db.VarChar(255)
+  status     String   @db.VarChar(50)
+  payload    Json?
+  created_at DateTime @default(now())
+
+  @@map("paiement_callback_log")
+}
+
+model Transaction {
+  id               Int             @id @default(autoincrement())
+  type_transaction TransactionType
+  mode_paiement    String          @db.VarChar(255)
+  montant          Int
+  date_transaction DateTime        @default(now())
+  user_id          Int
+  agence_id        Int?
+  user             User            @relation(fields: [user_id], references: [id])
+  agence           Agence?         @relation(fields: [agence_id], references: [id])
+  codes_secours    CodeSecours[]
+
+  @@map("transactions")
+}

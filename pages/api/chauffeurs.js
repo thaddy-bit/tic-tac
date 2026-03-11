@@ -1,9 +1,11 @@
-import { pool } from '@/lib/db';
+import { prisma } from '@/lib/prisma';
 
 export default async function handler(req, res) {
   if (req.method === 'GET') {
     try {
-      const [rows] = await pool.query('SELECT * FROM users WHERE etat = ? AND role = ?', ['actif','livreur']);
+      const rows = await prisma.user.findMany({
+        where: { etat: 'actif', role: 'livreur' },
+      });
       res.status(200).json(rows);
     } catch (error) {
       console.error('Error fetching chauffeurs:', error);

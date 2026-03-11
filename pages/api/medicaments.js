@@ -1,11 +1,10 @@
 // pages/api/medicaments.js
-
-import { pool } from '../../lib/db';
+import { prisma } from '@/lib/prisma';
 
 export default async function handler(req, res) {
   try {
-    const [rows] = await pool.query('SELECT * FROM medicaments');
-    
+    const rows = await prisma.medicament.findMany();
+
     if (rows.length === 0) {
       return res.status(404).json({ message: 'Aucun médicament trouvé' });
     }

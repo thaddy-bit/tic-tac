@@ -1,12 +1,12 @@
-import { pool } from '@/lib/db';
+import { prisma } from '@/lib/prisma';
 
 export default async function handler(req, res) {
   if (req.method === 'GET') {
     try {
-      const [rows] = await pool.query(
-        'SELECT id, nom, prenom, telephone, email, role FROM users WHERE etat = ?', 
-        ['actif']
-      );
+      const rows = await prisma.user.findMany({
+        where: { etat: 'actif' },
+        select: { id: true, nom: true, prenom: true, telephone: true, email: true, role: true },
+      });
       res.status(200).json(rows);
     } catch (error) {
       console.error('Error fetching users:', error);

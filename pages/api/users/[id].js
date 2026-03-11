@@ -1,152 +1,113 @@
-import { pool } from "@/lib/db";
+import { prisma } from "@/lib/prisma";
 
 export default async function handler(req, res) {
   const { id } = req.query;
+  const idNum = parseInt(id, 10);
+  if (isNaN(idNum)) {
+    return res.status(400).json({ message: "ID invalide" });
+  }
 
-  switch (req.method) {
-    case 'GET':
-      try {
-        const [rows] = await pool.query(`
-          SELECT u.id, u.nom, u.prenom, u.email, u.telephone, u.role, 
-                 u.agence_id, a.nom as agence_nom, a.ville_nom as agence_ville
-          FROM users u
-          LEFT JOIN agences a ON u.agence_id = a.id
-          WHERE u.id = ?
-        `, [id]);
+  if (req.method === 'GET') {
+    try {
+      const user = await prisma.user.findUnique({
+        where: { id: idNum },
+        include: {
+          agence: { include: { ville: { select: { nom: true } } } },
+        },
+      });
 
-        if (rows.length === 0) {
-          return res.status(404).json({ message: "Utilisateur non trouvé" });
-        }
-
-        const user = rows[0];
-        const response = {
-          id: user.id,
-          nom: user.nom,
-          prenom: user.prenom,
-          email: user.email,
-          telephone: user.telephone,
-          role: user.role,
-          agence_id: user.agence_id,
-          agence: user.agence_id ? {
-            id: user.agence_id,
-            nom: user.agence_nom,
-            ville_nom: user.agence_ville
-          } : null
-        };
-
-        res.status(200).json(response);
-      } catch (error) {
-        console.error("Erreur récupération utilisateur:", error);
-        res.status(500).json({ message: "Erreur serveur" });
+      if (!user) {
+        return res.status(404).json({ message: "Utilisateur non trouvé" });
       }
-      break;
 
-    case 'PUT':
-      try {
-        // Vérifie si c'est une mise à jour d'affectation
-        if (req.body.agence_id !== undefined) {
-          const { agence_id } = req.body;
-          
-          // Valider que l'agence existe si elle est spécifiée
-          if (agence_id) {
-            const [agenceRows] = await pool.query(
-              "SELECT id FROM agences WHERE id = ?",
-              [agence_id]
-            );
-            
-            if (agenceRows.length === 0) {
-              return res.status(400).json({ message: "Agence non trouvée" });
+      const response = {
+        id: user.id,
+        nom: user.nom,
+        prenom: user.prenom,
+        email: user.email,
+        telephone: user.telephone,
+        role: user.role,
+        agence_id: user.agence_id,
+        agence: user.agence_id
+          ? {
+              id: user.agence.id,
+              nom: user.agence.nom,
+              ville_nom: user.agence.ville?.nom,
             }
-          }
+          : null,
+      };
 
-          const [result] = await pool.query(
-            `UPDATE users SET agence_id = ? WHERE id = ?`,
-            [agence_id || null, id]
-          );
+      res.status(200).json(response);
+    } catch (error) {
+      console.error("Erreur récupération utilisateur:", error);
+      res.status(500).json({ message: "Erreur serveur" });
+    }
+  } else if (req.method === 'PUT') {
+    try {
+      if (req.body.agence_id !== undefined) {
+        const { agence_id } = req.body;
 
-          if (result.affectedRows === 0) {
-            return res.status(404).json({ message: "Utilisateur non trouvé" });
-          }
-
-          // Retourner les données mises à jour
-          // Modifiez la requête SQL pour utiliser le bon nom de colonne
-          const [updatedRows] = await pool.query(`
-            SELECT u.id, u.nom, u.prenom, u.email, u.telephone, u.role, 
-                   u.agence_id, a.nom AS agence_nom, v.nom AS agence_ville
-            FROM users u
-            LEFT JOIN agences a ON u.agence_id = a.id
-            LEFT JOIN villes v ON a.ville_id = v.id
-            WHERE u.id = ?
-          `, [id]);          
-
-          return res.status(200).json({
-            message: "Affectation mise à jour",
-            user: {
-              ...updatedRows[0],
-              agence: updatedRows[0].agence_id ? {
-                id: updatedRows[0].agence_id,
-                nom: updatedRows[0].agence_nom,
-                ville_nom: updatedRows[0].agence_ville
-              } : null
-            }
+        if (agence_id) {
+          const agence = await prisma.agence.findUnique({
+            where: { id: parseInt(agence_id, 10) },
+            select: { id: true },
           });
+          if (!agence) {
+            return res.status(400).json({ message: "Agence non trouvée" });
+          }
         }
 
-        // Mise à jour standard des informations utilisateur
-        const { nom, prenom, telephone, email, role } = req.body;
+        const updated = await prisma.user.update({
+          where: { id: idNum },
+          data: { agence_id: agence_id ? parseInt(agence_id, 10) : null },
+          include: {
+            agence: { include: { ville: { select: { nom: true } } } },
+          },
+        });
 
-        if (!nom || !prenom || !email) {
-          return res.status(400).json({ message: "Champs requis manquants" });
-        }
-
-        const [result] = await pool.query(
-          `UPDATE users 
-           SET nom = ?, prenom = ?, telephone = ?, email = ?, role = ?
-           WHERE id = ?`,
-          [nom, prenom, telephone, email, role, id]
-        );
-
-        if (result.affectedRows === 0) {
-          return res.status(404).json({ message: "Utilisateur non trouvé" });
-        }
-
-        res.status(200).json({ message: "Utilisateur mis à jour" });
-      } catch (error) {
-        console.error("Erreur modification utilisateur:", error);
-        
-        if (error.code === 'ER_DUP_ENTRY') {
-          return res.status(409).json({ message: "Cet email est déjà utilisé" });
-        }
-
-        res.status(500).json({ message: "Erreur serveur" });
+        return res.status(200).json({
+          message: "Affectation mise à jour",
+          user: {
+            ...updated,
+            password: undefined,
+            agence: updated.agence_id
+              ? { id: updated.agence.id, nom: updated.agence.nom, ville_nom: updated.agence.ville?.nom }
+              : null,
+          },
+        });
       }
-      break;
 
-    case 'DELETE':
-      try {
-        // Empêche la suppression de l'utilisateur actuel
-        if (req.user?.id === id) {
-          return res.status(403).json({ message: "Vous ne pouvez pas supprimer votre propre compte" });
-        }
+      const { nom, prenom, telephone, email, role } = req.body;
 
-        const [result] = await pool.query(
-          "DELETE FROM users WHERE id = ?",
-          [id]
-        );
-
-        if (result.affectedRows === 0) {
-          return res.status(404).json({ message: "Utilisateur non trouvé" });
-        }
-
-        res.status(200).json({ message: "Utilisateur supprimé" });
-      } catch (error) {
-        console.error("Erreur suppression utilisateur:", error);
-        res.status(500).json({ message: "Erreur serveur" });
+      if (!nom || !prenom || !email) {
+        return res.status(400).json({ message: "Champs requis manquants" });
       }
-      break;
 
-    default:
-      res.setHeader('Allow', ['GET', 'PUT', 'DELETE']);
-      res.status(405).json({ message: `Méthode ${req.method} non autorisée` });
+      await prisma.user.update({
+        where: { id: idNum },
+        data: { nom, prenom, telephone: telephone ?? undefined, email, role: role ?? undefined },
+      });
+
+      res.status(200).json({ message: "Utilisateur mis à jour" });
+    } catch (error) {
+      if (error.code === 'P2025') return res.status(404).json({ message: "Utilisateur non trouvé" });
+      if (error.code === 'P2002') return res.status(409).json({ message: "Cet email est déjà utilisé" });
+      console.error("Erreur modification utilisateur:", error);
+      res.status(500).json({ message: "Erreur serveur" });
+    }
+  } else if (req.method === 'DELETE') {
+    try {
+      await prisma.user.delete({
+        where: { id: idNum },
+      });
+      res.status(200).json({ message: "Utilisateur supprimé" });
+    } catch (error) {
+      if (error.code === 'P2025') return res.status(404).json({ message: "Utilisateur non trouvé" });
+      console.error("Erreur suppression utilisateur:", error);
+      res.status(500).json({ message: "Erreur serveur" });
+    }
+  } else {
+    res.setHeader('Allow', ['GET', 'PUT', 'DELETE']);
+    res.status(405).json({ message: `Méthode ${req.method} non autorisée` });
   }
 }

@@ -1,10 +1,13 @@
-import { pool } from '@/lib/db';
+import { prisma } from '@/lib/prisma';
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).end();
 
   try {
-    const [rows] = await pool.query('SELECT id, nom FROM villes ORDER BY nom ASC');
+    const rows = await prisma.ville.findMany({
+      select: { id: true, nom: true },
+      orderBy: { nom: 'asc' },
+    });
     res.status(200).json(rows);
   } catch (error) {
     console.error('Erreur récupération villes:', error);

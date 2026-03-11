@@ -94,8 +94,7 @@ export default function Produits() {
       const res = await fetch(`/api/produits/search?${params.toString()}`);
       const data = await res.json();
 
-      console.log('DATA REÇUE:', data); // debug
-      setProduits(Array.isArray(data) ? data : []);
+      setProduits(data.items ? data.items : Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Erreur chargement produits:', err);
       setProduits([]);

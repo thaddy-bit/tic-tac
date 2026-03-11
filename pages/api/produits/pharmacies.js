@@ -1,4 +1,4 @@
-import { pool } from '@/lib/db';
+import { prisma } from '@/lib/prisma';
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).end();
@@ -8,10 +8,11 @@ export default async function handler(req, res) {
   if (!ville_id) return res.status(400).json({ message: 'ville_id requis' });
 
   try {
-    const [rows] = await pool.query(
-      'SELECT id, nom FROM pharmacies WHERE ville_id = ? ORDER BY nom ASC',
-      [ville_id]
-    );
+    const rows = await prisma.pharmacie.findMany({
+      where: { ville_id: parseInt(ville_id, 10) },
+      select: { id: true, nom: true },
+      orderBy: { nom: 'asc' },
+    });
     res.status(200).json(rows);
   } catch (error) {
     console.error('Erreur récupération pharmacies:', error);

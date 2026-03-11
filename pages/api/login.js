@@ -1,7 +1,7 @@
 import { serialize } from 'cookie';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
-import { pool } from '@/lib/db';
+import { prisma } from '@/lib/prisma';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -11,32 +11,29 @@ export default async function handler(req, res) {
   const { email, password } = req.body;
 
   try {
-    // Chercher l'utilisateur
-    const [rows] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
-    const user = rows[0];
+    const user = await prisma.user.findFirst({
+      where: { email },
+    });
 
     if (!user) {
       return res.status(401).json({ message: 'Utilisateur non trouvé.' });
     }
 
-    // Comparer le mot de passe
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
       return res.status(401).json({ message: 'Mot de passe incorrect.' });
     }
 
-    // Générer le JWT
     const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: "7d" });
 
-    // Stocke le token dans un cookie HTTP Only
     res.setHeader('Set-Cookie', serialize('token', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production', // uniquement en production
-      sameSite: 'lax', // Utilisation de 'lax' pour plus de flexibilité
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
       path: '/',
-      maxAge: 60 * 60 * 24, // 1 jour
-      domain: process.env.NODE_ENV === 'production' ? 'tictac-cg.com' : undefined,  // Vérifier le bon domaine
+      maxAge: 60 * 60 * 24,
+      domain: process.env.NODE_ENV === 'production' ? 'tictac-cg.com' : undefined,
     }));
 
     return res.status(200).json({ message: 'Connexion réussie' });

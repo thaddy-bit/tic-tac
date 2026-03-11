@@ -1,22 +1,26 @@
-import { pool } from "@/lib/db";
+import { prisma } from "@/lib/prisma";
 
 export default async function handler(req, res) {
   const { id } = req.query;
+  const idNum = parseInt(id, 10);
+  if (isNaN(idNum)) {
+    return res.status(400).json({ message: "ID invalide" });
+  }
 
   if (req.method === "GET") {
     try {
-      const [rows] = await pool.query("SELECT * FROM pays WHERE id = ?", [id]);
-      if (rows.length === 0) {
+      const pays = await prisma.pays.findUnique({
+        where: { id: idNum },
+      });
+      if (!pays) {
         return res.status(404).json({ message: "Pays non trouvé" });
       }
-      res.status(200).json(rows[0]);
+      res.status(200).json(pays);
     } catch (err) {
       console.error("Erreur récupération pays:", err);
       res.status(500).json({ message: "Erreur serveur" });
     }
-  }
-
-  else if (req.method === "PUT") {
+  } else if (req.method === "PUT") {
     const { nom } = req.body;
 
     if (!nom) {
@@ -24,31 +28,32 @@ export default async function handler(req, res) {
     }
 
     try {
-      const [result] = await pool.query("UPDATE pays SET nom = ? WHERE id = ?", [nom, id]);
-      if (result.affectedRows === 0) {
-        return res.status(404).json({ message: "Pays non trouvé" });
-      }
+      await prisma.pays.update({
+        where: { id: idNum },
+        data: { nom },
+      });
       res.status(200).json({ message: "Pays modifié avec succès" });
     } catch (err) {
+      if (err.code === 'P2025') {
+        return res.status(404).json({ message: "Pays non trouvé" });
+      }
       console.error("Erreur modification pays:", err);
       res.status(500).json({ message: "Erreur serveur" });
     }
-  }
-
-  else if (req.method === "DELETE") {
+  } else if (req.method === "DELETE") {
     try {
-      const [result] = await pool.query("DELETE FROM pays WHERE id = ?", [id]);
-      if (result.affectedRows === 0) {
-        return res.status(404).json({ message: "Pays non trouvé" });
-      }
+      await prisma.pays.delete({
+        where: { id: idNum },
+      });
       res.status(200).json({ message: "Pays supprimé avec succès" });
     } catch (err) {
+      if (err.code === 'P2025') {
+        return res.status(404).json({ message: "Pays non trouvé" });
+      }
       console.error("Erreur suppression pays:", err);
       res.status(500).json({ message: "Erreur serveur" });
     }
-  }
-
-  else {
+  } else {
     res.status(405).json({ message: "Méthode non autorisée" });
   }
 }
