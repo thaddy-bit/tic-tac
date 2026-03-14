@@ -19,7 +19,8 @@ export default async function handler(req, res) {
     const form = formidable({
       uploadDir,
       keepExtensions: true,
-      maxFileSize: 2 * 1024 * 1024,
+      maxFileSize: 10 * 1024 * 1024, // 10 Mo
+      maxTotalFileSize: 10 * 1024 * 1024, // 10 Mo (formidable v3)
       filter: (part) => !!(part.mimetype && part.mimetype.startsWith("image/")),
     });
 

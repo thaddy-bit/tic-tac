@@ -33,6 +33,25 @@ To learn more about Next.js, take a look at the following resources:
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
+## MTN MoMo (sandbox)
+
+Variables d'environnement pour le paiement MTN Money :
+
+- `MTN_COLLECTION_SUBSCRIPTION_KEY` : clé primaire (abonnement Collection) du portail MTN
+- `MTN_CALLBACK_HOST` : host du callback uniquement (ex. `webhook.site` ou `ton-app.vercel.app`)
+- `MTN_API_USER_REFERENCE` : UUID v4 (optionnel ; généré et renvoyé par la route si absent)
+- `MTN_MOMO_BASE_URL` : optionnel, défaut `https://sandbox.momodeveloper.mtn.com`
+- `MTN_API_KEY` : clé secrète générée à l’étape 2 (après create-apikey)
+- `MTN_CALLBACK_SECRET` : optionnel, pour vérifier la signature des callbacks
+
+**Étape 1 – Créer l’API User** (une fois, réservé admin) :  
+`POST /api/paiement/mtn/create-apiuser`. Ajouter le `xReferenceId` reçu dans `.env` comme `MTN_API_USER_REFERENCE`.
+
+**Étape 2 – Générer l’API Key** (une fois, après l’étape 1) :  
+`POST /api/paiement/mtn/create-apikey`. Copier l’`apiKey` reçue dans `.env` comme `MTN_API_KEY` (MTN ne la renverra plus).
+
+**Étapes 3 & 4 – Paiement** : à chaque clic « Valider » (mode MTN Money), l’app obtient un token (étape 3) puis envoie un Request to Pay (étape 4). Config requise : `MTN_CALLBACK_URL` (URL complète du callback, ex. `https://ton-app.vercel.app/api/paiement/mtn/callback`). Optionnel : `MTN_CURRENCY` (défaut `XAF`), `MTN_TARGET_ENVIRONMENT` (défaut `sandbox`).
+
 ## Deploy on Vercel
 
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
