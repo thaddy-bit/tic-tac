@@ -4,7 +4,7 @@
  *
  * Env requis :
  * - MTN_COLLECTION_SUBSCRIPTION_KEY : clé d'abonnement Collection (clé primaire du portail)
- * - MTN_CALLBACK_HOST : host du callback uniquement (ex. webhook.site ou ton-domaine.com)
+ * - MTN_CALLBACK_HOST : host du callback uniquement (ex. ton-app.vercel.app), SANS https:// ni chemin. Doit être exactement le même que le host de MTN_CALLBACK_URL utilisé en Request to Pay.
  * - MTN_API_USER_REFERENCE : UUID v4 (optionnel ; si absent, un UUID est généré et renvoyé pour le mettre en .env)
  * - MTN_MOMO_BASE_URL : optionnel, défaut sandbox (https://sandbox.momodeveloper.mtn.com)
  */
