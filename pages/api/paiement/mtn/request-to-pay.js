@@ -32,7 +32,8 @@ export default async function handler(req, res) {
     return res.status(500).json({ message: 'MTN_CALLBACK_URL invalide (URL mal formée)' });
   }
 
-  if (callbackHost && urlHost !== callbackHost) {
+  const normalizeHost = (h) => (h || '').replace(/^www\./, '');
+  if (callbackHost && normalizeHost(urlHost) !== normalizeHost(callbackHost)) {
     return res.status(400).json({
       message: `Le domaine du callback ne correspond pas. MTN_CALLBACK_URL pointe vers « ${urlHost} » alors que MTN_CALLBACK_HOST est « ${callbackHost} ». Ils doivent être identiques (sans https://, sans www si l’autre n’en a pas). C’est aussi ce host qui doit avoir été utilisé lors de la création de l’API User (create-apiuser).`,
       urlHost,
