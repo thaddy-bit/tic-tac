@@ -81,8 +81,6 @@ export default async function handler(req, res) {
       if (process.env.NODE_ENV === 'development') console.warn('MTN callback: signature invalide');
       return res.status(401).json({ message: 'Signature invalide' });
     }
-  } else if (process.env.NODE_ENV === 'production') {
-    return res.status(500).json({ message: 'Callback non configuré' });
   }
 
   let body;
@@ -93,10 +91,7 @@ export default async function handler(req, res) {
   }
 
   const reference = body.reference || body.referenceId || body.externalId || body.financialTransactionId || body.id || '';
-  const refStr = String(reference).trim();
-  if (!refStr) {
-    return res.status(200).json({ received: true });
-  }
+  const refStr = String(reference).trim() || `callback-${Date.now()}`;
 
   try {
     const existing = await prisma.paiementCallbackLog.findUnique({

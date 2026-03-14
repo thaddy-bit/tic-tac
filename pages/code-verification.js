@@ -111,7 +111,7 @@ export default function CodeValidationPage() {
         if (!res.ok) {
           setMessage(`❌ ${data.message || 'Erreur demande de paiement'}`);
         } else {
-          setMessage(`✅ ${data.message || 'Demande envoyée.'} Confirmez le paiement sur votre téléphone (MoMo).`);
+          setMessage('✅ Demande envoyée. Confirmez le paiement sur votre téléphone (MoMo).');
         }
       }
     } catch {
